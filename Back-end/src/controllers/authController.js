@@ -3,8 +3,8 @@ const { revokeToken } = require('../middlewares/auth');
 
 class AuthController {
     
-    // Login
-    // En login - hacerlo más robusto
+    // backend/controllers/authController.js - En login function
+    // backend/controllers/authController.js - Login function CORREGIDA
     async login(req, res) {
         try {
             const { email, pass } = req.body;
@@ -12,29 +12,35 @@ class AuthController {
             
             console.log('🍪 Enviando cookie authToken...');
 
-            // Configuración de cookie
+            // ✅ CONFIGURACIÓN ESPECÍFICA PARA GITHUB CODESPACES
+            const isGitHubCodespace = process.env.CODESPACES === 'true';
+            
             const cookieOptions = {
                 httpOnly: true,
-                secure: true,
-                sameSite: 'none',
-                domain: '.app.github.dev',
+                secure: true, // ✅ Siempre true en Codespaces
+                sameSite: 'none', // ✅ Requerido para cross-origin
                 maxAge: 24 * 60 * 60 * 1000,
                 path: '/'
             };
 
+            // ✅ SIEMPRE usar dominio de GitHub en Codespaces
+            if (isGitHubCodespace) {
+                cookieOptions.domain = '.app.github.dev';
+            }
+
             // Establecer cookie
             res.cookie('authToken', resultado.token, cookieOptions);
+            
+            console.log('✅ Cookie establecida para Codespaces');
             
             res.json({
                 success: true,
                 message: 'Login exitoso',
                 data: {
-                    token: resultado.token,
                     usuario: resultado.usuario
                 }
             });
 
-            console.log('✅ Cookie enviada correctamente');
         } catch (error) {
             res.status(401).json({
                 success: false,
@@ -43,7 +49,7 @@ class AuthController {
         }
     }
 
-    // Registro
+    // Registro (se mantiene igual, está bien)
     async registrar(req, res) {
         try {
             const datosUsuario = {
@@ -74,7 +80,7 @@ class AuthController {
         }
     }
 
-    // Obtener perfil (protegido)
+    // Obtener perfil (se mantiene igual, está bien)
     async obtenerPerfil(req, res) {
         try {
             const usuario = await authService.obtenerPerfil(req.user.correo);
@@ -91,32 +97,33 @@ class AuthController {
         }
     }
 
-    // Logout (manejado en el frontend eliminando el token)
-    // ✅ CORREGIDO: Con await y mejor manejo
+    // Logout optimizado
     async logout(req, res) {
         try {
             console.log('🔐 Iniciando logout...');
             
-            const token = req.cookies.authToken || (req.headers.authorization?.split(' ')[1]);
+            // ✅ SOLO cookies (eliminamos headers)
+            const token = req.cookies.authToken;
             
             if (token) {
                 console.log('🗑️ Revocando token...');
                 await revokeToken(token);
             }
 
-            // ✅ LIMPIAR TODAS LAS POSIBLES COOKIES
-            const clearOptions = [
-                { httpOnly: true, secure: true, sameSite: 'none', domain: '.app.github.dev', path: '/' },
-                { httpOnly: true, secure: true, sameSite: 'none', path: '/' },
-                { httpOnly: true, secure: false, sameSite: 'lax', path: '/' },
-                { path: '/' } // Opción mínima
-            ];
+            // ✅ CONFIGURACIÓN SIMPLIFICADA
+            const clearOptions = {
+                httpOnly: true,
+                path: '/'
+            };
 
-            clearOptions.forEach(options => {
-                res.clearCookie('authToken', options);
-            });
+            // Agregar dominio solo si es GitHub Codespaces
+            if (process.env.CODESPACES === 'true') {
+                clearOptions.domain = '.app.github.dev';
+            }
 
-            console.log('✅ Logout completado - cookies limpiadas');
+            res.clearCookie('authToken', clearOptions);
+
+            console.log('✅ Logout completado - cookie limpiada');
 
             return res.status(200).json({
                 success: true,
@@ -126,9 +133,12 @@ class AuthController {
         } catch (error) {
             console.error('❌ Error en logout:', error);
             
-            // Limpiar agresivamente incluso con error
-            res.clearCookie('authToken', { path: '/' });
-            res.clearCookie('authToken', { path: '/', domain: '.app.github.dev' });
+            // Limpiar cookie incluso con error
+            const clearOptions = {
+                path: '/',
+                domain: process.env.CODESPACES ? '.app.github.dev' : undefined
+            };
+            res.clearCookie('authToken', clearOptions);
             
             return res.status(200).json({
                 success: true,
@@ -137,4 +147,5 @@ class AuthController {
         }
     }
 }
+
 module.exports = new AuthController();

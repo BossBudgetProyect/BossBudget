@@ -1,38 +1,43 @@
 // frontend/app.js
-// SOLO librerías necesarias para el frontend
+import dotenv from 'dotenv';
+dotenv.config(); // ✅ Cargar variables de entorno
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cookieParser from 'cookie-parser'; // ✅ CORREGIDO: import para ES modules
+import cookieParser from 'cookie-parser';
+import { injectUserData } from './middlewares/authMiddleware.js';
 
 // Configuración de paths para ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3001; // Puerto diferente al backend
+const port = 3001;
 
-// ✅ MANTENER - Configurar EJS
+// ✅ CONFIGURACIÓN EJS
 app.set('view engine', 'ejs');
-
-// ✅ CORREGIDO - Orden correcto de middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // ✅ AHORA SÍ FUNCIONARÁ
-app.use(express.static('public'));
-
-// Configurar carpeta de vistas
 app.set('views', path.join(__dirname, 'views'));
 
-// ✅ AGREGAR middleware de debugging para cookies
+app.use(cookieParser()); // ✅ CRÍTICO para leer cookies del backend
+
+// ✅ ESTO DEBE ESTAR ANTES de las rutas
+app.use(injectUserData); // Middleware GLOBAL
+
+// ✅ MIDDLEWARES EN ORDEN CORRECTO
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+// ✅ MIDDLEWARE DE DEBUGGING MEJORADO
 app.use((req, res, next) => {
-    console.log('🍪 Middleware de cookies - req.cookies:', req.cookies);
-    console.log('🌐 Ruta:', req.path);
+    console.log('🌐 Ruta:', req.method, req.path);
+    console.log('🍪 Cookies recibidas:', req.cookies);
+    console.log('📧 Headers de cookie:', req.headers.cookie);
     next();
 });
 
-// ✅ MANTENER (pero transformadas) - Rutas de vistas
-// Importar rutas del frontend
+// ✅ IMPORTAR RUTAS
 import otherRoutes from './routes/otherRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import presupuestoRoutes from './routes/presupuestoRoutes.js';
@@ -40,7 +45,7 @@ import gastosRoutes from './routes/gastosRoutes.js';
 import ingresosRoutes from './routes/ingresosRoutes.js';
 import passRoutes from './routes/passRoutes.js';
 
-// Usar rutas
+// ✅ USAR RUTAS
 app.use('/', otherRoutes);
 app.use('/', authRoutes);
 app.use('/', presupuestoRoutes);
@@ -48,36 +53,40 @@ app.use('/', gastosRoutes);
 app.use('/', ingresosRoutes);
 app.use('/', passRoutes);
 
-// Ruta de prueba para verificar que funciona
+// ✅ RUTA HEALTH CHECK MEJORADA
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         message: 'Frontend funcionando correctamente',
-        cookies: req.cookies, // ✅ DEBUG: ver cookies en health check
-        timestamp: new Date().toISOString()
+        hasAuthCookie: !!req.cookies.authToken,
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
     });
 });
 
-// Manejo de errores 404
+// ✅ MANEJO DE ERRORES 404
 app.use((req, res) => {
     res.status(404).render('error', { 
         message: 'Página no encontrada',
-        error: { status: 404 }
+        error: { status: 404 },
+        user: null
     });
 });
 
-// Manejo de errores generales
+// ✅ MANEJO DE ERRORES GENERALES
 app.use((err, req, res, next) => {
     console.error('❌ Error en app:', err);
     res.status(500).render('error', { 
         message: 'Error interno del servidor',
-        error: process.env.NODE_ENV === 'development' ? err : {}
+        error: process.env.NODE_ENV === 'development' ? err : {},
+        user: null
     });
 });
 
-// Iniciar servidor del frontend
+// ✅ INICIAR SERVIDOR
 app.listen(port, () => {
     console.log(`🎨 Frontend corriendo en http://localhost:${port}`);
     console.log(`✅ Health check: http://localhost:${port}/health`);
     console.log(`🍪 Cookie-parser configurado correctamente`);
+    console.log(`🔗 Backend esperado en: ${process.env.BACKEND_URL || 'http://localhost:3000'}`);
 });
