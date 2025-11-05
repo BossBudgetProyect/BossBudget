@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="img/Logo.ico" type="image/x-icon">
+  <title>Registro de Ingresos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .title-font {
+      font-family: 'Bebas Neue', sans-serif;
+    }
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      opacity: 0.15;
+    }
+    .form-container {
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <video autoplay loop muted playsinline class="video-background">
+    <source src="video/videoFondo.mp4" type="video/mp4">
+  </video>
+
+  <div class="form-container rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-all">
+    <div class="bg-green-600 py-4 px-6">
+      <h1 class="text-2xl title-font text-white text-center">Registrar Nuevo Ingreso</h1>
+    </div>
+
+    <form action="/ingresos/nuevo/<%= idPresupuesto %>" method="POST" class="p-6 space-y-4">
+      <!-- Tipo de ingreso -->
+      <div>
+        <label for="tipoSelect" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Ingreso</label>
+        <select id="tipoSelect" name="tipo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta Debito">Tarjeta Debito</option>
+          <option value="Tarjeta credito">Tarjeta Credito</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Billeteras virtuales">Billeteras Virtuales</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <input id="otroTipoInput" name="otroTipo" type="text" placeholder="Especificar tipo de ingreso..." 
+               class="w-full mt-2 p-3 border border-gray-300 rounded-lg hidden focus:ring-2 focus:ring-green-500">
+      </div>
+
+      <!-- Monto -->
+      <div>
+        <label for="valor" class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+        <div class="relative">
+          <span class="absolute left-3 top-3 text-gray-500">$</span>
+          <input type="number" id="valor" name="valor" 
+                 class="w-full pl-8 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" 
+                 placeholder="0.00" min="0" step="0.01" required>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="2"
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="Ej: Pago de cliente, venta producto..." required></textarea>
+      </div>
+
+      <!-- Fecha -->
+      <div>
+        <label for="fecha" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+        <input type="date" id="fecha" name="fecha" 
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+               value="<%= new Date().toISOString().split('T')[0] %>" required>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex space-x-4 pt-4">
+        <a href="/presupuesto/<%= idPresupuesto %>" 
+           class="flex-1 bg-gray-500 hover:bg-gray-600 text-white text-center py-3 rounded-lg transition-all">
+          Cancelar
+        </a>
+        <button type="submit" 
+                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition-all">
+          Registrar Ingreso
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Mostrar campo "Otro" cuando se seleccione esa opción
+    document.getElementById('tipoSelect').addEventListener('change', function() {
+      const otroInput = document.getElementById('otroTipoInput');
+      otroInput.classList.toggle('hidden', this.value !== 'Otro');
+      if (this.value !== 'Otro') otroInput.value = '';
+      otroInput.toggleAttribute('required', this.value === 'Otro');
+    });
+
+    // Validación antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const monto = document.getElementById('valor');
+      if (monto.value <= 0) {
+        e.preventDefault();
+        alert('El monto debe ser mayor a cero');
+        monto.focus();
+      }
+      
+      // Validar campo "Otro" si está visible
+      const tipoSelect = document.getElementById('tipoSelect');
+      const otroInput = document.getElementById('otroTipoInput');
+      if (tipoSelect.value === 'Otro' && !otroInput.value.trim()) {
+        e.preventDefault();
+        alert('Por favor especifica el tipo de ingreso');
+        otroInput.focus();
+      }
+    });
+  </script>
+</body>
+</html>

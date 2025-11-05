@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind debe ir primero -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="icon" href="img/Logo.ico" type="image/x-icon">
+  <link rel="stylesheet" href="dist/output.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+  <title>Crear Presupuesto</title>
+
+  <style>
+    body {
+      font-family: 'Bebas Neue', sans-serif;
+    }
+
+    .formulario-principal {
+      display: block;
+    }
+
+    .formulario-recordatorio {
+      display: none;
+    }
+  </style>
+</head>
+<body class="pt-20 flex justify-center items-center min-h-screen bg-gray-100 relative">
+  <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover -z-10">
+    <source src="video/videoFondo.mp4" type="video/mp4">
+  </video>
+
+  <!-- FORMULARIO -->
+  <div class="bg-gray-200 p-6 rounded-xl shadow-md max-w-md w-full mx-4 z-10">
+    <h2 class="text-2xl text-center font-bold text-gray-800 mb-4">Crear Presupuesto</h2>
+
+    <form action="/crearPresupuesto" method="POST" id="formularioPresupuesto" class="formulario-principal">
+      <label for="nombre" class="block text-sm font-semibold mb-1">Nombre del presupuesto</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Ej: Viaje a Cartagena" class="w-full mb-4 p-2 border border-gray-300 rounded-md" required>
+
+      <label for="valor" class="block text-sm font-semibold mb-1">Valor estimado ($)</label>
+      <input type="number" step="0.01" min="0" id="valor" name="valor" placeholder="Ej: 1500.00" class="w-full mb-4 p-2 border border-gray-300 rounded-md" required>
+	  
+	  <!-- Selección de categoría -->
+	<div class="mb-4">
+	  <label for="categoria" class="block text-sm font-semibold mb-1">Categoría</label>
+	  <select id="categoria" name="categoria" class="w-full p-2 border border-gray-300 rounded-md" onchange="mostrarInputCategoria()">
+		<option value="Casa">Casa</option>
+		<option value="Comida">Comida</option>
+		<option value="Trabajo">Trabajo</option>
+		<option value="Otros">Otros</option>
+	  </select>
+	</div>
+
+	<!-- Input para categoría personalizada -->
+	<div id="otraCategoriaDiv" class="mb-4 hidden">
+	  <label for="otraCategoria" class="block text-sm font-semibold mb-1">Otra categoría</label>
+	  <input type="text" id="otraCategoria" name="otraCategoria" placeholder="Especifica otra categoría" class="w-full p-2 border border-gray-300 rounded-md" />
+	</div>
+
+	  
+      <div class="flex gap-4">
+        <div class="w-1/2">
+          <label for="fecha_inicio" class="block text-sm font-semibold mb-1">Fecha inicio</label>
+          <input type="date" id="fecha_inicio" name="fecha_inicio" class="w-full p-2 border border-gray-300 rounded-md" required>
+        </div>
+        <div class="w-1/2">
+          <label for="fecha_fin" class="block text-sm font-semibold mb-1">Fecha fin</label>
+          <input type="date" id="fecha_fin" name="fecha_fin" class="w-full p-2 border border-gray-300 rounded-md" required>
+        </div>
+      </div>
+
+      <div class="flex justify-between gap-4 mt-6">
+        <button type="submit" class="bg-black text-white text-center py-2 rounded-full w-full hover:bg-yellow-600 transition">
+          Crear
+        </button>
+        <button type="button" class="bg-fuchsia-800 text-white py-2 rounded-full w-full hover:bg-yellow-600 transition" onclick="mostrarFormularioRecordatorio()">
+          Crear y Recordar
+        </button>
+      </div>
+	  <!-- Botón Cancelar -->
+	<button type="button" onclick="window.location.href='/principal'" 
+	  class="mt-4 bg-red-600 text-white py-2 rounded-full w-full hover:bg-red-800 transition">
+	  Cancelar
+	</button>
+
+    </form>
+
+    <div id="formularioRecordatorio" class="formulario-recordatorio mt-6">
+      <p class="text-center text-sm text-gray-700 mb-4">Recordatorio activado. (Aquí podrías añadir campos adicionales si lo deseas)</p>
+
+      <a href="/presupuesto/:id" class="block bg-black text-white text-center py-2 rounded-full w-full hover:bg-yellow-600 transition mt-2">
+        Finalizar
+      </a>
+      <button type="button" onclick="cancelarFormularioRecordatorio()" class="mt-2 bg-red-600 text-white py-2 rounded-full w-full hover:bg-red-800 transition">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // ✅ FUNCIÓN PARA MOSTRAR ALERTAS BONITAS
+    function showAlert(title, message, icon, callback = null) {
+      if (typeof Swal === 'undefined') {
+        alert(`${title}: ${message}`);
+        if (callback) callback();
+        return;
+      }
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+
+      if (icon === 'success' && title.includes('éxito')) {
+        Swal.fire({
+          title: '🎉 ' + title,
+          text: message,
+          icon: 'success',
+          confirmButtonText: '¡Genial!',
+          confirmButtonColor: '#10b981',
+          background: '#f0fdf4',
+          iconColor: '#10b981',
+          timer: 3000,
+          timerProgressBar: true,
+          willClose: callback
+        });
+      } else if (icon === 'error') {
+        Swal.fire({
+          title: '❌ ' + title,
+          text: message,
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#ef4444',
+          background: '#fef2f2',
+          iconColor: '#ef4444'
+        });
+      } else if (icon === 'warning') {
+        Swal.fire({
+          title: '⚠️ ' + title,
+          text: message,
+          icon: 'warning',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#f59e0b',
+          background: '#fffbeb',
+          iconColor: '#f59e0b'
+        });
+      } else {
+        Toast.fire({
+          icon: icon,
+          title: message
+        });
+      }
+    }
+
+    // ✅ VALIDACIÓN DE FECHAS - NO PERMITIR FECHA FIN ANTERIOR A FECHA INICIO
+    document.addEventListener('DOMContentLoaded', function() {
+      const fechaInicio = document.getElementById('fecha_inicio');
+      const fechaFin = document.getElementById('fecha_fin');
+      
+      // Establecer fecha mínima como hoy
+      const today = new Date().toISOString().split('T')[0];
+      fechaInicio.min = today;
+      fechaFin.min = today;
+
+      // Validar cuando cambia fecha inicio
+      fechaInicio.addEventListener('change', function() {
+        if (this.value) {
+          fechaFin.min = this.value;
+          
+          // Si fecha fin es anterior a la nueva fecha inicio, resetear
+          if (fechaFin.value && fechaFin.value < this.value) {
+            fechaFin.value = '';
+            showAlert('Fecha inválida', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning');
+          }
+        }
+      });
+
+      // Validar cuando cambia fecha fin
+      fechaFin.addEventListener('change', function() {
+        if (fechaInicio.value && this.value < fechaInicio.value) {
+          this.value = '';
+          showAlert('Fecha inválida', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning');
+          this.focus();
+        }
+      });
+    });
+
+    // ✅ INTERCEPTAR ENVÍO DEL FORMULARIO CON FETCH
+    document.getElementById('formularioPresupuesto').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      
+      // Validaciones previas
+      const nombre = document.getElementById('nombre').value.trim();
+      const valor = document.getElementById('valor').value;
+      const categoria = document.getElementById('categoria').value;
+      const otraCategoria = document.getElementById('otraCategoria').value.trim();
+      const fechaInicio = document.getElementById('fecha_inicio').value;
+      const fechaFin = document.getElementById('fecha_fin').value;
+
+      // Validar campos requeridos
+      if (!nombre || !valor || !fechaInicio || !fechaFin) {
+        showAlert('Campos incompletos', 'Por favor completa todos los campos requeridos', 'warning');
+        return;
+      }
+
+      // Validar valor positivo
+      if (parseFloat(valor) <= 0) {
+        showAlert('Valor inválido', 'El valor del presupuesto debe ser mayor a 0', 'warning');
+        document.getElementById('valor').focus();
+        return;
+      }
+
+      // Validar fechas
+      if (new Date(fechaFin) < new Date(fechaInicio)) {
+        showAlert('Fechas inválidas', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning');
+        return;
+      }
+
+      // Deshabilitar botón durante el envío
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Creando...';
+
+      // Preparar datos
+      const formData = {
+        nombre: nombre,
+        valor: parseFloat(valor),
+        categoria: categoria === 'Otros' && otraCategoria ? otraCategoria : categoria,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin
+      };
+
+      try {
+        // Mostrar loading
+        Swal.fire({
+          title: 'Creando presupuesto...',
+          text: 'Estamos procesando tu información',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Enviar a la API
+        const response = await fetch('https://automatic-journey-5g5wgjj75gjq2p6pg-3000.app.github.dev/api/presupuestos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        // Cerrar loading
+        Swal.close();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Error al crear el presupuesto');
+        }
+
+        if (result.success) {
+          showAlert(
+            '¡Presupuesto Creado!', 
+            '🎊 Tu presupuesto ha sido creado exitosamente', 
+            'success',
+            () => {
+              window.location.href = '/principal';
+            }
+          );
+          
+          // Redirigir automáticamente después de 2 segundos
+          setTimeout(() => {
+            window.location.href = '/principal';
+          }, 2000);
+        } else {
+          throw new Error(result.message || 'Error al crear el presupuesto');
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        
+        let errorTitle = 'Error al crear presupuesto';
+        let errorMessage = error.message || 'Ha ocurrido un error inesperado';
+        
+        // Mensajes específicos para errores comunes
+        if (error.message.includes('nombre') || error.message.includes('duplicado')) {
+          errorTitle = 'Nombre duplicado';
+          errorMessage = 'Ya existe un presupuesto con ese nombre. Por favor elige otro.';
+        } else if (error.message.includes('fecha')) {
+          errorTitle = 'Fechas inválidas';
+          errorMessage = 'Por favor verifica las fechas ingresadas.';
+        } else if (error.message.includes('valor')) {
+          errorTitle = 'Valor inválido';
+          errorMessage = 'El valor del presupuesto no es válido.';
+        } else if (error.message.includes('red') || error.message.includes('fetch')) {
+          errorTitle = 'Error de conexión';
+          errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+        }
+        
+        showAlert(errorTitle, errorMessage, 'error');
+        
+        // Rehabilitar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+
+    // ✅ FUNCIÓN PARA "CREAR Y RECORDAR" (versión mejorada)
+    function mostrarFormularioRecordatorio() {
+      // Primero validar el formulario principal
+      const nombre = document.getElementById('nombre').value.trim();
+      const valor = document.getElementById('valor').value;
+      const fechaInicio = document.getElementById('fecha_inicio').value;
+      const fechaFin = document.getElementById('fecha_fin').value;
+
+      if (!nombre || !valor || !fechaInicio || !fechaFin) {
+        showAlert('Campos incompletos', 'Por favor completa todos los campos antes de activar recordatorios', 'warning');
+        return;
+      }
+
+      if (parseFloat(valor) <= 0) {
+        showAlert('Valor inválido', 'El valor del presupuesto debe ser mayor a 0', 'warning');
+        return;
+      }
+
+      if (new Date(fechaFin) < new Date(fechaInicio)) {
+        showAlert('Fechas inválidas', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning');
+        return;
+      }
+
+      // Si todo está bien, mostrar confirmación
+      Swal.fire({
+        title: '¿Activar recordatorios?',
+        text: 'Se crearán recordatorios automáticos para este presupuesto',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, activar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Enviar formulario con flag de recordatorio
+          document.getElementById('formularioPresupuesto').dispatchEvent(new Event('submit'));
+        }
+      });
+    }
+
+    function cancelarFormularioRecordatorio() {
+      document.getElementById('formularioRecordatorio').style.display = 'none';
+      document.getElementById('formularioPresupuesto').style.display = 'block';
+    }
+
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (menuBtn && mobileMenu) {
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        const isClickInsideMenu = mobileMenu.contains(e.target);
+        const isClickOnButton = menuBtn.contains(e.target);
+        if (!isClickInsideMenu && !isClickOnButton) {
+          mobileMenu.classList.add('hidden');
+        }
+      });
+    }
+    
+    function mostrarInputCategoria() {
+      const select = document.getElementById('categoria');
+      const otraCategoriaDiv = document.getElementById('otraCategoriaDiv');
+
+      if (select.value === 'Otros') {
+        otraCategoriaDiv.classList.remove('hidden');
+      } else {
+        otraCategoriaDiv.classList.add('hidden');
+        document.getElementById('otraCategoria').value = '';
+      }
+    }
+
+    // ✅ VALIDACIÓN EN TIEMPO REAL PARA MEJOR UX
+    document.getElementById('valor').addEventListener('blur', function() {
+      if (this.value && parseFloat(this.value) <= 0) {
+        this.classList.add('border-red-500');
+        showAlert('Valor inválido', 'El presupuesto debe ser mayor a 0', 'warning');
+      } else {
+        this.classList.remove('border-red-500');
+      }
+    });
+
+    document.getElementById('nombre').addEventListener('blur', function() {
+      if (this.value && this.value.length < 2) {
+        this.classList.add('border-red-500');
+        showAlert('Nombre muy corto', 'El nombre debe tener al menos 2 caracteres', 'warning');
+      } else {
+        this.classList.remove('border-red-500');
+      }
+    });
+
+    // ✅ PREVENIR ENVÍO CON ENTER EN CAMPOS INDIVIDUALES
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
