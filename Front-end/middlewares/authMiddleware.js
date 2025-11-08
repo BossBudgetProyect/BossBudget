@@ -1,68 +1,44 @@
-// frontend/middlewares/authMiddleware.js - VERSIÓN COMPLETA DEBUG
-import fetch from 'node-fetch';
+// frontend/middleware/authMiddleware.js
 
-export const injectUserData = async (req, res, next) => {
-    console.log('🔐 injectUserData ejecutándose...');
-    console.log('🍪 Token disponible:', req.cookies?.authToken ? 'SÍ' : 'NO');
-    
-    const token = req.cookies?.authToken;
+// Middleware para inyectar datos del usuario en vistas EJS
+import jwt from 'jsonwebtoken';
 
-    if (!token) {
-        console.log('❌ No hay token - user será null');
-        res.locals.user = null;
-        return next();
-    }
+export function injectUserData(req, res, next) {
+  const token = req.cookies.authToken;
+  console.log('🍪 req.cookies:', req.cookies);
 
-    try {
-        console.log('📤 Llamando a /api/auth/verify con token...');
-        console.log('🔗 URL:', `${process.env.BACKEND_URL}/api/auth/verify`);
-        
-        const response = await fetch(`${process.env.BACKEND_URL}/api/auth/verify`, {
-            method: 'GET',
-            headers: {
-                'Cookie': `authToken=${token}`
-            },
-            timeout: 10000
-        });
+  if (!token) return next();
 
-        console.log('📨 Status de verify:', response.status);
-        console.log('📨 Headers de verify:', response.headers);
-        
-        if (!response.ok) {
-            console.log('❌ Verify falló - status:', response.status);
-            throw new Error(`HTTP ${response.status}`);
-        }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('✅ Token decodificado correctamente:', decoded);
+    res.locals.user = decoded;
+  } catch (err) {
+    console.warn('⚠️ Token inválido:', err.message);
+    // res.clearCookie('authToken', { httpOnly: true, secure: true, sameSite: 'Strict' }); // 🧹 limpia cookie dañada
+  }
 
-        const result = await response.json();
-        console.log('📊 Resultado COMPLETO de verify:', JSON.stringify(result, null, 2));
+  next();
+}
 
-        if (result.success && result.data && result.data.user) {
-            res.locals.user = result.data.user;
-            console.log('✅ User inyectado correctamente:', res.locals.user);
-        } else {
-            console.log('❌ Verify success pero sin user data');
-            res.locals.user = null;
-        }
 
-    } catch (error) {
-        console.error('❌ Error en injectUserData:', error.message);
-        console.error('❌ Stack:', error.stack);
-        res.locals.user = null;
-    }
-
-    console.log('🔐 injectUserData finalizado - user:', res.locals.user);
-    next();
-};
-
-export const protectView = (req, res, next) => {
+export const protectView = async (req, res, next) => {
     console.log('🛡️ protectView ejecutándose para:', req.path);
-    console.log('👤 res.locals.user:', res.locals.user);
     
+    // ✅ CREAR una versión que espere a que injectUserData termine
+    await new Promise((resolve) => {
+        injectUserData(req, res, () => {
+            console.log('🔍 protectView - después de injectUserData:', res.locals.user);
+            resolve();
+        });
+    });
+    
+    // Luego verificar autenticación
     if (!res.locals.user) {
-        console.log('🔴 NO HAY USER - Redirigiendo a login');
-        return res.redirect('/login?alert=true&title=Acceso Denegado&message=Debes iniciar sesión&icon=warning');
+        console.log('🔴 Vista protegida - redirigiendo a login');
+        return res.redirect('/login');
     }
     
-    console.log('✅ ACCESS PERMITIDO para:', res.locals.user.nombreUsuario);
+    console.log('✅ protectView - acceso permitido');
     next();
 };
