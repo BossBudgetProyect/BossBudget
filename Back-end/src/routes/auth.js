@@ -21,19 +21,30 @@ router.post('/registrar', upload.single('foto'), authController.registrar);
 // ✅ Ruta /verify — validación de token
 router.get('/verify', authMiddleware, async (req, res) => {
   try {
-    console.log('🔍 Verificando token → Usuario:', req.user);
+    console.log('🎯 BACKEND /verify EJECUTÁNDOSE');
+    console.log('🔐 req.user recibido:', JSON.stringify(req.user, null, 2));
+    console.log('🍪 Cookies en verify:', req.cookies);
+    console.log('📧 Headers en verify:', req.headers.cookie);
+
+    // ✅ USAR minúsculas (como están en el JWT)
+    const userData = {
+      id: req.user.correo,
+      correo: req.user.correo,
+      nombreUsuario: req.user.nombreUsuario,
+      rol: req.user.rol
+    };
+
+    console.log('✅ User data procesado:', userData);
 
     res.status(200).json({
       success: true,
       data: {
-        user: {
-          id: req.user.userId || req.user.id,
-          correo: req.user.correo,
-          nombreUsuario: req.user.nombreUsuario,
-          rol: req.user.rol
-        }
+        user: userData
       }
     });
+
+    console.log('🎯 BACKEND /verify COMPLETADO');
+
   } catch (error) {
     console.error('❌ Error en /verify:', error.message);
     res.status(401).json({

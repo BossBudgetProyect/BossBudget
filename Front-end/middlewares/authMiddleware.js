@@ -1,41 +1,26 @@
 // frontend/middleware/authMiddleware.js
 
 // Middleware para inyectar datos del usuario en vistas EJS
-export const injectUserData = async (req, res, next) => {
-    console.log('🔐 injectUserData ejecutándose...');
-    const token = req.cookies?.authToken;
+import jwt from 'jsonwebtoken';
 
-    if (!token) {
-        res.locals.user = null;
-        return next();
-    }
+export function injectUserData(req, res, next) {
+  const token = req.cookies.authToken;
+  console.log('🍪 req.cookies:', req.cookies);
 
-    try {
-        const verifyResponse = await fetch('http://localhost:3000/api/auth/verify', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+  if (!token) return next();
 
-        const result = await verifyResponse.json();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('✅ Token decodificado correctamente:', decoded);
+    res.locals.user = decoded;
+  } catch (err) {
+    console.warn('⚠️ Token inválido:', err.message);
+    // res.clearCookie('authToken', { httpOnly: true, secure: true, sameSite: 'Strict' }); // 🧹 limpia cookie dañada
+  }
 
-        if (result.success) {
-            res.locals.user = result.data.user;
-            console.log('👤 Datos de usuario inyectados:', res.locals.user);
-        } else {
-            console.warn('⚠️ Token inválido en injectUserData');
-            res.locals.user = null;
-            res.clearCookie('authToken');
-        }
-    } catch (error) {
-        console.error('❌ Error en injectUserData:', error.message);
-        res.locals.user = null;
-    }
+  next();
+}
 
-    next();
-};
 
 export const protectView = async (req, res, next) => {
     console.log('🛡️ protectView ejecutándose para:', req.path);
