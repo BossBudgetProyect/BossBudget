@@ -24,7 +24,7 @@ router.get('/principal', protectView, async (req, res) => {
         let presupuestos = [];
         
         try {
-            const presupuestosResponse = await fetch('https://automatic-journey-5g5wgjj75gjq2p6pg-3000.app.github.dev/api/presupuestos', {
+            const presupuestosResponse = await fetch('https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
