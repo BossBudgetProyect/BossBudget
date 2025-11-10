@@ -37,7 +37,8 @@
   <div class="bg-gray-200 p-6 rounded-xl shadow-md max-w-md w-full mx-4 z-10">
     <h2 class="text-2xl text-center font-bold text-gray-800 mb-4">Crear Presupuesto</h2>
 
-    <form action="/crearPresupuesto" method="POST" id="formularioPresupuesto" class="formulario-principal">
+    <!-- En crearPresupuesto.ejs - Cambiar el formulario -->
+  <form id="formularioPresupuesto" class="formulario-principal">
       <label for="nombre" class="block text-sm font-semibold mb-1">Nombre del presupuesto</label>
       <input type="text" id="nombre" name="nombre" placeholder="Ej: Viaje a Cartagena" class="w-full mb-4 p-2 border border-gray-300 rounded-md" required>
 
@@ -239,7 +240,8 @@
       const formData = {
         nombre: nombre,
         valor: parseFloat(valor),
-        categoria: categoria === 'Otros' && otraCategoria ? otraCategoria : categoria,
+        categoria: categoria, // Enviar la categoría seleccionada
+        otraCategoria: categoria === 'Otros' && otraCategoria ? otraCategoria : categoria,
         fecha_inicio: fechaInicio,
         fecha_fin: fechaFin
       };
@@ -254,6 +256,9 @@
             Swal.showLoading();
           }
         });
+
+        // Agrega esto antes del fetch para ver qué estás enviando
+        console.log('📤 Datos a enviar:', formData);
 
         // Enviar a la API
         const response = await fetch('https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos', {
