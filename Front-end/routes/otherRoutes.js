@@ -7,7 +7,7 @@ const router = express.Router();
 
 // ✅ PROTEGER la ruta /principal
 // ✅ CORREGIDO: Agrega injectUserData y usa res.locals.user
-router.get('/principal', protectView, async (req, res) => {
+/*router.get('/principal', protectView, async (req, res) => {
     try {
         console.log('🏠 Accediendo a /principal');
         
@@ -24,7 +24,7 @@ router.get('/principal', protectView, async (req, res) => {
         let presupuestos = [];
         
         try {
-            const presupuestosResponse = await fetch('https://automatic-journey-5g5wgjj75gjq2p6pg-3000.app.github.dev/api/presupuestos', {
+            const presupuestosResponse = await fetch('https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -51,6 +51,23 @@ router.get('/principal', protectView, async (req, res) => {
         console.error('❌ Error en /principal:', error);
         res.redirect('/login');
     }
+});*/
+
+router.get('/principal', protectView, (req, res) => {
+    const alertData = req.query.alert ? {
+        alert: true,
+        alertTitle: req.query.title || 'Info',
+        alertMessage: req.query.message || '',
+        alertIcon: req.query.icon || 'info',
+        showConfirmButton: true
+    } : {};
+    
+    res.render('principal', {
+            user: res.locals.user, // ✅ CORREGIDO
+            name: res.locals.user.nombreUsuario || 'Usuario',
+            email: res.locals.user.email || 'usuario@ejemplo.com',
+            foto: res.locals.user.foto || null
+        });
 });
 
 router.get('/Reportes', protectView, (req, res) => {
