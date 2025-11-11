@@ -24,15 +24,22 @@ router.get('/crearPresupuesto', protectView, (req, res) => {
 });
 
 // Vista detallada del presupuesto
+// Vista detallada del presupuesto
 router.get('/presupuesto/:id', protectView, (req, res) => {
     const id = req.params.id;
     
     res.render('presupuesto', {
         title: 'Detalle del Presupuesto',
         user: res.locals.user,
-        presupuestoId: id,
-        // ❌ Los datos se cargarán via JavaScript llamando a la API
-        presupuesto: null,
+        presupuestoId: id, // ✅ Esto es lo que usa el script
+        presupuesto: {
+            idPresupuesto: id,
+            nombre: 'Cargando...',
+            monto: 0,
+            fecha_inicio: '',
+            fecha_fin: '',
+            categoria: ''
+        },
         gastos: [],
         ingresos: [],
         totales: { gastos: 0, ingresos: 0, balance: 0 }

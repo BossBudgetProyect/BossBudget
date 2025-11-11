@@ -535,111 +535,128 @@
     </div>
   </div>
 
-  <!-- Scripts para manejar los modales -->
   <script>
-    // Función para abrir modal de edición
-    function openEditModal(type, id, descripcion, valor) {
-      document.getElementById('editType').value = type;
-      document.getElementById('editId').value = id;
-      document.getElementById('editDescripcion').value = descripcion;
-      document.getElementById('editValor').value = valor;
-      document.getElementById('modalTitle').textContent = `Editar ${type === 'gasto' ? 'Gasto' : 'Ingreso'}`;
-      document.getElementById('editModal').style.display = 'block';
-    }
+    // Configuración
+    const API_BASE = 'https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos';
+    const presupuestoId = '<%= presupuestoId %>'; // Esto SÍ viene de tu ruta
 
-    // Función para cerrar modales
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
+    // Función simple para cargar y actualizar datos
+    async function cargarDatosPresupuesto() {
+        try {
+            console.log('Cargando datos para presupuesto:', presupuestoId);
+            
+            const response = await fetch(`${API_BASE}/${presupuestoId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-    // Manejar envío del formulario de edición
-    document.getElementById('editForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const formData = {
-        id: document.getElementById('editId').value,
-        type: document.getElementById('editType').value,
-        descripcion: document.getElementById('editDescripcion').value,
-        valor: document.getElementById('editValor').value
-      };
+            if (!response.ok) {
+                throw new Error('Error al cargar los datos');
+            }
 
-      try {
-        const response = await fetch(`/${formData.type}s/editar/${formData.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            descripcion: formData.descripcion,
-            valor: formData.valor
-          })
-        });
+            const result = await response.json();
+            
+            if (result.success) {
+                const datos = result.data;
+                console.log('Datos recibidos:', datos);
+                
+                // Actualizar solo los elementos esenciales
+                actualizarVistaConDatos(datos);
+            } else {
+                throw new Error(result.error);
+            }
 
-        if (response.ok) {
-          window.location.reload();
-        } else {
-          Swal.fire('Error', 'No se pudo actualizar', 'error');
+        } catch (error) {
+            console.error('Error:', error);
+            // No mostrar alerta para no interrumpir la experiencia
         }
-      } catch (error) {
-        Swal.fire('Error', 'Error de conexión', 'error');
-      }
+    }
+
+    // Función simple para actualizar la vista
+    function actualizarVistaConDatos(datos) {
+        const { presupuesto, detalles, ingresos, gastos, totales } = datos;
+        
+        // Tomar el primer detalle del presupuesto
+        const detalle = detalles && detalles.length > 0 ? detalles[0] : null;
+        
+        if (!detalle) {
+            console.log('No hay detalles del presupuesto');
+            return;
+        }
+
+        // 1. Actualizar título y nombre
+        document.title = `Presupuesto: ${detalle.nombre}`;
+        document.querySelector('h1.text-3xl').textContent = detalle.nombre;
+
+        // 2. Actualizar fechas
+        const fechaElements = document.querySelectorAll('.flex.items-center.text-primary-600 span');
+        if (fechaElements.length >= 2) {
+            fechaElements[0].textContent = new Date(detalle.fecha_inicio).toLocaleDateString();
+            fechaElements[1].textContent = new Date(detalle.fecha_fin).toLocaleDateString();
+        }
+
+        // 3. Actualizar presupuesto inicial
+        const presupuestoInicial = document.querySelector('.border-yellow-400');
+        presupuestoInicial.querySelector('p.text-3xl').textContent = `$${parseFloat(detalle.monto).toFixed(2)}`;
+        presupuestoInicial.querySelector('p.text-sm').textContent = `Categoría: ${detalle.categoria}`;
+
+        // 4. Actualizar estado actual (cálculos)
+        const totalGastos = parseFloat(totales.gastos);
+        const montoPresupuesto = parseFloat(detalle.monto);
+        const diferencia = montoPresupuesto - totalGastos;
+        const esExcedido = totalGastos > montoPresupuesto;
+        const porcentaje = (totalGastos / montoPresupuesto) * 100;
+
+        const estadoActual = document.querySelector('.border-green-500, .border-red-500');
+        
+        // Actualizar colores del borde
+        estadoActual.classList.remove('border-green-500', 'border-red-500');
+        estadoActual.classList.add(esExcedido ? 'border-red-500' : 'border-green-500');
+
+        // Actualizar icono
+        const icono = estadoActual.querySelector('svg');
+        icono.classList.remove('text-green-500', 'text-red-500');
+        icono.classList.add(esExcedido ? 'text-red-500' : 'text-green-500');
+
+        // Actualizar montos
+        const montoPrincipal = estadoActual.querySelector('p.text-2xl');
+        montoPrincipal.textContent = `$${Math.abs(diferencia).toFixed(2)}`;
+        montoPrincipal.classList.remove('text-green-500', 'text-red-500');
+        montoPrincipal.classList.add(esExcedido ? 'text-red-500' : 'text-green-500');
+
+        const textoSecundario = estadoActual.querySelector('p.text-sm');
+        if (esExcedido) {
+            textoSecundario.textContent = `Excedido por $${(totalGastos - montoPresupuesto).toFixed(2)}`;
+            textoSecundario.classList.remove('text-gray-600');
+            textoSecundario.classList.add('text-red-500');
+        } else {
+            textoSecundario.textContent = `Disponible ($${diferencia.toFixed(2)})`;
+            textoSecundario.classList.remove('text-red-500');
+            textoSecundario.classList.add('text-gray-600');
+        }
+
+        // Actualizar porcentaje badge
+        const badge = estadoActual.querySelector('span');
+        badge.textContent = `${Math.min(porcentaje, 100).toFixed(0)}%`;
+        badge.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+        if (esExcedido) {
+            badge.classList.add('bg-red-100', 'text-red-800');
+        } else {
+            badge.classList.add('bg-green-100', 'text-green-800');
+        }
+
+        console.log('Vista actualizada correctamente');
+    }
+
+    // Cargar datos cuando la página esté lista
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Iniciando carga de datos...');
+        cargarDatosPresupuesto();
     });
 
-    // Función para confirmar eliminación
-    async function confirmDelete(type, id) {
-  const row = event.target.closest('tr'); // Obtiene la fila actual
-  
-  const result = await Swal.fire({
-    title: '¿Estás seguro?',
-    text: `Esta acción eliminará el ${type === 'gasto' ? 'gasto' : 'ingreso'} seleccionado`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  });
-
-  if (result.isConfirmed) {
-    // Ocultar la fila inmediatamente
-    row.style.opacity = '0.5';
-    row.style.transition = 'opacity 0.3s ease';
-    
-    try {
-      const response = await fetch(`/${type}s/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        // Eliminar completamente la fila después de la animación
-        setTimeout(() => {
-          row.remove();
-          // Actualizar los números (#) de las filas restantes
-          updateRowNumbers(type);
-        }, 300);
-        
-        Swal.fire(
-          'Eliminado!',
-          `El ${type === 'gasto' ? 'gasto' : 'ingreso'} ha sido eliminado.`,
-          'success'
-        );
-      } else {
-        row.style.opacity = '1';
-        Swal.fire('Error', 'No se pudo eliminar', 'error');
-      }
-    } catch (error) {
-      row.style.opacity = '1';
-      Swal.fire('Error', 'Error de conexión', 'error');
-    }
-  }
-}
-
-    // Cerrar modal al hacer clic fuera del contenido
-    window.onclick = function(event) {
-      if (event.target.className === 'modal') {
-        event.target.style.display = 'none';
-      }
-    }
   </script>
   
 </body>
