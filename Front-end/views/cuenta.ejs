@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configuración de Cuenta</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.16.40/font/lucide.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     @keyframes pulse {
       0%, 100% { opacity: 1; }
@@ -14,474 +14,670 @@
     .animate-pulse {
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    .delay-300 { animation-delay: 300ms; }
-    .delay-500 { animation-delay: 500ms; }
-    .delay-700 { animation-delay: 700ms; }
-    .delay-1000 { animation-delay: 1000ms; }
-    .delay-1200 { animation-delay: 1200ms; }
-    .delay-400 { animation-delay: 400ms; }
-    .delay-800 { animation-delay: 800ms; }
-    .backdrop-blur-sm { backdrop-filter: blur(4px); }
     
-    /* Fondo fijo que no afecta el scroll */
-    .space-background {
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Fondo que cubre toda la página */
+    .full-page-bg {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
-      overflow: hidden;
+      z-index: -10;
+      object-fit: cover;
     }
-    
-    /* Contenedor principal con scroll */
-    .main-content {
-      position: relative;
-      z-index: 10;
+
+    /* Mejoras visuales suavizadas */
+    .glass-effect {
+      backdrop-filter: blur(12px) saturate(160%);
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    .gradient-border {
+      background: linear-gradient(45deg, #7c3aed, #a855f7, #f59e0b);
+      padding: 1px;
+      border-radius: 12px;
+    }
+
+    .stats-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-upload {
+      transition: all 0.3s ease;
+    }
+
+    .avatar-upload:hover {
+      transform: scale(1.05);
+    }
+
+    /* Colores suavizados */
+    .bg-morado-suave {
+      background-color: #8b5cf6;
+    }
+
+    .bg-amarillo-suave {
+      background-color: #f59e0b;
+    }
+
+    .text-morado-oscuro {
+      color: #5b21b6;
+    }
+
+    .text-amarillo-oscuro {
+      color: #92400e;
     }
   </style>
 </head>
-<body class="min-h-screen">
-  <img src="img/FondoRegistro.png" class="absolute inset-0 w-full h-full object-cover md:object-fill -z-10">
-  <!-- Fondo espacial FIJO (no afecta el scroll) -->   
+<body class="min-h-screen bg-gray-50">
+  <!-- Fondo mejorado -->
+  <img src="img/FondoRegistro.png" class="full-page-bg">
+  
+  <!-- Navbar -->
 
-  <!-- Contenido principal CON SCROLL -->
-<div class="max-w-5xl mx-auto my-12 rounded-xl backdrop-blur-xl border border-yellow-600 bg-white shadow-[0_8px_25px_rgba(0,0,0,0.45)] hover:shadow-[0_10px_35px_rgba(0,0,0,0.6)] transition-shadow duration-500 p-6">
-  <div class="main-content min-h-screen py-8">
-    <!-- Formulario principal -->
-    <form action="/actualizar-cuenta" method="POST" class="max-w-4xl mx-auto px-4 space-y-6">
-      <!-- Header -->
-      <div class="text-center space-y-2 pt-8">
-        <h1 class="text-4xl font-bold text-yellow-600 bg-clip-text text-transparent drop-shadow-lg">
-           Configuración de Cuenta
-        </h1>
-        <p class="text-black">Personaliza tu perfil y preferencias de presupuesto</p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Profile Card - Siempre visible -->
-        <div class="lg:col-span-1 border border-purple-800/60 bg-purple-900/40  backdrop-blur-sm shadow-2xl rounded-lg">
-          <div class="p-6 text-center">
-            <div class="flex items-center justify-center gap-2 text-black font-semibold text-lg">
-              <i data-lucide="user" class="h-5 w-5"></i>
-              Perfil
-            </div>
-          </div>
-          <div class="px-6 pb-6 space-y-6">
-            <!-- Profile Picture -->
-            <div class="flex flex-col items-center space-y-4">
-              <div class="relative">
-                <div class="h-24 w-24 rounded-full border-4 border-purple-400/50 shadow-lg shadow-purple-500/25 flex items-center justify-center bg-purple-800/50 text-purple-200 text-lg backdrop-blur-sm overflow-hidden">
-				  <% if(foto) { %>
-					<img src="/uploads/<%= foto %>" alt="Avatar" class="w-full h-full object-cover">
-				  <% } else { %>
-					<%= name && name.charAt(0) %><%= lastName && lastName.charAt(0) %>
-				  <% } %>
-				</div>
-                <label for="avatarInput" class="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 bg-purple-500 hover:bg-purple-400 shadow-lg shadow-purple-500/25 flex items-center justify-center cursor-pointer">
-                  <i data-lucide="camera" class="h-4 w-4"></i>
-                  <input type="file" id="avatarInput" name="avatar" accept="image/*" class="hidden">
-                </label>
-              </div>
-              <button type="button" onclick="document.getElementById('avatarInput').click()" class="w-full py-2 px-4 rounded-md border border-purple-400/50 bg-purple-900/30 text-purple-300 hover:bg-purple-800/40 backdrop-blur-sm text-sm font-medium">
-                Cambiar Foto
-              </button>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="space-y-3">
-              <div class="flex justify-between items-center p-3 bg-blue-900/30 rounded-lg border border-blue-400/30 backdrop-blur-sm">
-                <span class="text-sm font-medium text-blue-300"> Presupuesto Actual</span>
-                <span class="bg-blue-500/80 hover:bg-blue-400/80 shadow-lg shadow-blue-500/25 px-2 py-1 rounded-full text-xs font-medium">$2,500</span>
-              </div>
-              <div class="flex justify-between items-center p-3 bg-red-900/30 rounded-lg border border-red-400/30 backdrop-blur-sm">
-                <span class="text-sm font-medium text-red-300">Gastos del Mes</span>
-                <span class="bg-red-500/80 hover:bg-red-400/80 shadow-lg shadow-red-500/25 px-2 py-1 rounded-full text-xs font-medium">$1,850</span>
-              </div>
-              <div class="flex justify-between items-center p-3 bg-emerald-900/30 rounded-lg border border-emerald-400/30 backdrop-blur-sm">
-                <span class="text-sm font-medium text-emerald-300">Ahorro</span>
-                <span class="bg-emerald-500/80 hover:bg-emerald-400/80 shadow-lg shadow-emerald-500/25 px-2 py-1 rounded-full text-xs font-medium">$650</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main Settings - Accordion -->
-        <div class="lg:col-span-2 space-y-6">
-          <!-- Personal Information -->
-          <div class="border-none">
-            <div class="border border-purple-400/30 bg-purple-800/60  backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden">
-              <button type="button" class="accordion-trigger w-full px-6 py-4 hover:no-underline text-left flex justify-between items-center">
-                <div class="flex items-center gap-2 text-black font-semibold">
-                  <i data-lucide="user" class="h-5 w-5"></i>  Información Personal
-                  <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transform transition-transform"></i>
-                </div>
-              </button>
-              <div class="accordion-content hidden px-6 pb-6 space-y-4">
-                <p class="text-black mb-4 text-sm">Actualiza tu información básica de perfil</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-2">
-                    <label for="firstName" class="text-yellow-500 font-medium text-sm">Nombre</label>
-                    <input
-                      id="firstName"
-                      name="nombres"
-                      placeholder="Juan"
-                      value="<%= name || '' %>"
-                      class="w-full px-3 py-2 border border-yellow-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-blue-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                    />
-                  </div>
-                  <div class="space-y-2">
-                    <label for="lastName" class="text-yellow-500 font-medium text-sm">Apellido</label>
-                    <input
-                      id="lastName"
-                      name="apellidos"
-                      placeholder="Pérez"
-                      value="<%= lastName || '' %>"
-                      class="w-full px-3 py-2 border border-yellow-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                    />
-                  </div>
-                </div>
-                <div class="space-y-2">
-                  <label for="username" class="text-yellow-500 font-medium text-sm">Nombre de Usuario</label>
-                  <input
-                    id="username"
-                    name="nombreUsuario"
-                    placeholder="juanito123"
-                    value="<%= username || '' %>"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="email" class="text-yellow-500 font-medium text-sm">Correo Electrónico</label>
-                  <input
-                    id="email"
-                    name="correo"
-                    type="email"
-                    placeholder="juan@ejemplo.com"
-                    value="<%= email || '' %>"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md bg-purple-900/30 cursor-not-allowed"
-                    readonly
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="profesion" class="text-yellow-500 font-medium text-sm">Profesión</label>
-                  <input
-                    id="profesion"
-                    name="profesion"
-                    placeholder="Ingeniero, Diseñador, etc."
-                    value="<%= profesion || '' %>"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="bio" class="text-yellow-500 font-medium text-sm">Expectativas</label>
-                  <textarea
-                    id="bio"
-                    name="descripcion"
-                    placeholder="Cuéntanos un poco sobre ti..."
-                    class="min-h-[80px] w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  ><%= expecs || '' %></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Budget Preferences -->
-          <div class="border-none">
-            <div class="border border-emerald-400/30 bg-emerald-900/60  backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden">
-              <button type="button" class="accordion-trigger w-full px-6 py-4 hover:no-underline text-left flex justify-between items-center">
-                <div class="flex items-center gap-2 text-emerald-300 font-semibold">
-                  <i data-lucide="dollar-sign" class="h-5 w-5"></i> Preferencias de Presupuesto
-                  <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transform transition-transform"></i>
-                </div>
-              </button>
-              <div class="accordion-content hidden px-6 pb-6 space-y-4">
-                <p class="text-emerald-200 mb-4 text-sm">Configura tus preferencias financieras</p>
-                <div class="space-y-2">
-                  <label for="currency" class="text-emerald-300 font-medium text-sm">Moneda</label>
-                  <select 
-                    id="currency"
-                    name="moneda"
-                    class="w-full px-3 py-2 border border-emerald-400/50 bg-emerald-900/20 text-emerald-100 focus:border-emerald-400 focus:ring-emerald-400/50 backdrop-blur-sm rounded-md"
-                  >
-                    <option value="usd" <%= moneda === 'usd' ? 'selected' : '' %>>💵 USD - Dólar</option>
-                    <option value="eur" <%= moneda === 'eur' ? 'selected' : '' %>>💶 EUR - Euro</option>
-                    <option value="mxn" <%= moneda === 'mxn' ? 'selected' : '' %>>🇲🇽 MXN - Peso Mexicano</option>
-                    <option value="cop" <%= moneda === 'cop' ? 'selected' : '' %>>🇨🇴 COP - Peso Colombiano</option>
-                  </select>
-                </div>
-                <!-- Puedes agregar más campos de preferencias aquí cuando los definas -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Notifications -->
-          <div class="border-none">
-            <div class="border border-amber-400/30 bg-amber-900/60 backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden">
-              <button type="button" class="accordion-trigger w-full px-6 py-4 hover:no-underline text-left flex justify-between items-center">
-                <div class="flex items-center gap-2 text-amber-300 font-semibold">
-                  <i data-lucide="bell" class="h-5 w-5"></i> Notificaciones
-                  <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transform transition-transform"></i>
-                </div>
-              </button>
-              <div class="accordion-content hidden px-6 pb-6 space-y-4">
-                <p class="text-amber-200 mb-4 text-sm">Configura cómo quieres recibir notificaciones</p>
-                <div class="flex items-center justify-between p-4 bg-amber-900/30 rounded-lg border border-amber-400/30 backdrop-blur-sm">
-                  <div class="space-y-0.5">
-                    <label for="budgetAlerts" class="text-amber-200 font-medium text-sm">⚠️ Alertas de Presupuesto</label>
-                    <p class="text-sm text-amber-300">Recibe alertas cuando te acerques al límite</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      id="budgetAlerts"
-                      type="checkbox" 
-                      name="alertasPresupuesto" 
-                      class="sr-only peer" 
-                      <%=  %>
-                    >
-                    <div class="w-11 h-6 bg-amber-900/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                  </label>
-                </div>
-                <div class="h-px bg-amber-400/30"></div>
-                <div class="flex items-center justify-between p-4 bg-amber-900/30 rounded-lg border border-amber-400/30 backdrop-blur-sm">
-                  <div class="space-y-0.5">
-                    <label for="expenseReminders" class="text-amber-200 font-medium text-sm">📝 Recordatorios de Gastos</label>
-                    <p class="text-sm text-amber-300">Recordatorios para registrar gastos diarios</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      id="expenseReminders"
-                      type="checkbox" 
-                      name="recordatoriosGastos" 
-                      class="sr-only peer" 
-                      <%= %>
-                    >
-                    <div class="w-11 h-6 bg-amber-900/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                  </label>
-                </div>
-                <div class="h-px bg-amber-400/30"></div>
-                <div class="flex items-center justify-between p-4 bg-amber-900/30 rounded-lg border border-amber-400/30 backdrop-blur-sm">
-                  <div class="space-y-0.5">
-                    <label for="monthlyReports" class="text-amber-200 font-medium text-sm">📊 Reportes Mensuales</label>
-                    <p class="text-sm text-amber-300">Resumen mensual de tus finanzas</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      id="monthlyReports"
-                      type="checkbox" 
-                      name="reportesMensuales" 
-                      class="sr-only peer" 
-                      <%= %>
-                    >
-                    <div class="w-11 h-6 bg-amber-900/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Security -->
-          <div class="border-none">
-            <div class="border border-purple-400/30 bg-purple-900/60 backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden">
-              <button type="button" class="accordion-trigger w-full px-6 py-4 hover:no-underline text-left flex justify-between items-center">
-                <div class="flex items-center gap-2 text-gray-700 font-semibold">
-                  <i data-lucide="shield" class="h-5 w-5"></i>  Seguridad
-                  <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transform transition-transform"></i>
-                </div>
-              </button>
-              <div class="accordion-content hidden px-6 pb-6 space-y-4">
-                <p class="text-purple-200 mb-4 text-sm">Gestiona la seguridad de tu cuenta</p>
-                <div class="space-y-2">
-                  <label for="currentPassword" class="text-purple-300 font-medium text-sm">Contraseña Actual</label>
-                  <input
-                    id="currentPassword"
-                    name="contrasenaActual"
-                    type="password"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="newPassword" class="text-purple-300 font-medium text-sm">Nueva Contraseña</label>
-                  <input
-                    id="newPassword"
-                    name="nuevaContrasena"
-                    type="password"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="confirmPassword" class="text-purple-300 font-medium text-sm">Confirmar Contraseña</label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmarContrasena"
-                    type="password"
-                    class="w-full px-3 py-2 border border-purple-400/50 bg-purple-900/20 text-purple-100 placeholder:text-purple-400 focus:border-purple-400 focus:ring-purple-400/50 backdrop-blur-sm rounded-md"
-                  />
-                </div>
-                <button type="button" id="changePasswordBtn" class="w-full py-2 px-4 rounded-md bg-purple-600/80 hover:bg-purple-500/80 shadow-lg shadow-purple-500/25 backdrop-blur-sm text-white font-medium">
-                  🔐 Cambiar Contraseña
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Danger Zone -->
-          <div class="border-none">
-            <div class="border border-red-400/30 bg-red-600 backdrop-blur-sm shadow-2xl rounded-lg overflow-hidden">
-              <button type="button" class="accordion-trigger w-full px-6 py-4 hover:no-underline text-left flex justify-between items-center">
-                <div class="flex items-center gap-2 text-red-300 font-semibold">
-                  <i data-lucide="trash-2" class="h-5 w-5"></i> Zona de Peligro
-                  <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transform transition-transform"></i>
-                </div>
-              </button>
-              <div class="accordion-content hidden px-6 pb-6 space-y-4">
-                <p class="text-red-200 mb-4 text-sm">Acciones irreversibles para tu cuenta</p>
-                <div class="p-4 bg-red-900/30 rounded-lg border border-red-400/30 backdrop-blur-sm">
-                  <h4 class="font-medium text-red-200 mb-2">🗑️ Eliminar Cuenta</h4>
-                  <p class="text-sm text-red-300 mb-3">
-                    Esta acción eliminará permanentemente tu cuenta y todos tus datos.
-                  </p>
-                  <button type="button" id="deleteAccountBtn" class="py-1.5 px-3 rounded-md bg-red-600/80 hover:bg-red-500/80 shadow-lg shadow-red-500/25 text-white text-sm font-medium">
-                    Eliminar Cuenta
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 justify-end pb-8">
-        <button type="button" id="cancelBtn" class="sm:w-auto w-full py-2 px-4 rounded-md border border-slate-400/50 bg-whithe hover:bg-slate-700/50 backdrop-blur-sm">
-          ❌ Cancelar
-        </button>
-        <button type="submit" id="saveBtn" class="sm:w-auto w-full py-2 px-4 rounded-md bg-purple-600/80  text-white font-medium shadow-lg shadow-emerald-500/25 backdrop-blur-sm">
-          💾 Guardar Cambios
-        </button>
-      </div>
-    </form>
+  <!-- Loading Overlay mejorado -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="glass-effect rounded-2xl p-8 flex flex-col items-center shadow-lg border border-purple-100">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mb-4"></div>
+      <p class="text-gray-800 text-lg font-semibold">Cargando tu información...</p>
+      <p class="text-gray-600 text-sm mt-2">Estamos preparando todo para ti</p>
+    </div>
   </div>
 
-  <!-- Formulario oculto para subir avatar -->
-  <form id="avatarForm" action="/actualizar-avatar" method="POST" enctype="multipart/form-data" class="hidden">
-    <input type="file" id="realAvatarInput" name="avatar" accept="image/*">
-  </form>
+  <!-- Contenido principal mejorado -->
+  <div class="max-w-6xl mx-auto my-8 px-4 pt-16">
+    <div class="gradient-border">
+      <div class="glass-effect rounded-xl shadow-lg border border-purple-100">
+        <div class="min-h-screen py-8">
+          <!-- Formulario principal -->
+          <form id="userForm" class="max-w-5xl mx-auto px-6 space-y-8" style="display: none;">
+            <!-- Header mejorado -->
+            <div class="text-center space-y-4 pt-4">
+              <div class="inline-flex items-center justify-center space-x-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                  <span class="text-white text-xl">👤</span>
+                </div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-amber-500 bg-clip-text text-transparent">
+                  Mi Cuenta
+                </h1>
+              </div>
+              <p class="text-gray-700 text-lg max-w-2xl mx-auto">Gestiona tu perfil, seguridad y preferencias financieras</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Profile Card mejorada -->
+              <div class="lg:col-span-1 space-y-6">
+                <!-- Tarjeta de Perfil -->
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg overflow-hidden">
+                  <div class="p-6 text-center text-white">
+                    <div class="flex items-center justify-center gap-3 font-bold text-lg">
+                      <span>👤</span> Perfil Personal
+                    </div>
+                  </div>
+                  <div class="px-6 pb-6 space-y-6">
+                    <!-- Profile Picture mejorada -->
+                    <div class="flex flex-col items-center space-y-4">
+                      <div class="relative avatar-upload">
+                        <div id="avatarContainer" class="h-28 w-28 rounded-full border-4 border-white/40 shadow-lg flex items-center justify-center bg-white/20 backdrop-blur-sm overflow-hidden">
+                          <!-- Avatar se cargará dinámicamente -->
+                        </div>
+                        <label for="avatarInput" class="absolute -bottom-2 -right-2 h-10 w-10 rounded-full p-0 bg-white hover:bg-gray-100 shadow-md flex items-center justify-center cursor-pointer transition-all duration-300">
+                          <span class="text-purple-600 text-sm">📷</span>
+                          <input type="file" id="avatarInput" name="avatar" accept="image/*" class="hidden">
+                        </label>
+                      </div>
+                      <button type="button" onclick="document.getElementById('avatarInput').click()" class="w-full py-3 px-4 rounded-xl border border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm text-sm font-medium transition-all duration-300">
+                        ✨ Cambiar Foto
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Estadísticas en Tiempo Real -->
+                <div id="statsContainer" class="space-y-4">
+                  <!-- Los presupuestos activos se cargarán aquí dinámicamente -->
+                </div>
+              </div>
+
+              <!-- Main Settings mejorado -->
+              <div class="lg:col-span-2 space-y-6">
+                <!-- Información Personal mejorada -->
+                <div class="border-none">
+                  <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-purple-100">
+                    <button type="button" class="accordion-trigger w-full px-6 py-5 text-left flex justify-between items-center hover:bg-purple-50 transition-colors duration-200 border-b border-purple-50">
+                      <div class="flex items-center gap-3 text-purple-800 font-bold text-lg">
+                        <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">📋</span>
+                        Información Personal
+                        <span class="icon-chevron-down accordion-icon text-purple-500 transform transition-transform duration-300">▼</span>
+                      </div>
+                    </button>
+                    <div class="accordion-content px-6 pb-6 space-y-5">
+                      <p class="text-gray-600 mb-4 text-sm">Actualiza tu información básica para personalizar tu experiencia</p>
+                      
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                          <label for="nombres" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                            <span class="text-purple-500">👤</span> Nombre
+                          </label>
+                          <input
+                            id="nombres"
+                            name="nombres"
+                            placeholder="Ej: Juan Carlos"
+                            class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                          />
+                        </div>
+                        <div class="space-y-2">
+                          <label for="apellidos" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                            <span class="text-purple-500">👥</span> Apellido
+                          </label>
+                          <input
+                            id="apellidos"
+                            name="apellidos"
+                            placeholder="Ej: Pérez García"
+                            class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                          <label for="nombreUsuario" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                            <span class="text-purple-500">🎯</span> Nombre de Usuario
+                          </label>
+                          <div class="relative">
+                            <input
+                              id="nombreUsuario"
+                              name="nombreUsuario"
+                              placeholder="juanito123"
+                              disabled
+                              class="w-full px-4 py-3 border border-gray-300 bg-gray-50 text-gray-600 placeholder:text-gray-400 rounded-xl cursor-not-allowed"
+                            />
+                            <button type="button" onclick="habilitarEdicionUsuario()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors" title="Editar nombre de usuario">
+                              ✏️
+                            </button>
+                          </div>
+                        </div>
+                        <div class="space-y-2">
+                          <label for="correo" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                            <span class="text-purple-500">📧</span> Correo Electrónico
+                          </label>
+                          <input
+                            id="correo"
+                            name="correo"
+                            type="email"
+                            placeholder="juan@ejemplo.com"
+                            disabled
+                            class="w-full px-4 py-3 border border-gray-300 bg-gray-50 text-gray-600 placeholder:text-gray-400 rounded-xl cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="space-y-2">
+                        <label for="profesion" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                          <span class="text-purple-500">💼</span> Profesión
+                        </label>
+                        <input
+                          id="profesion"
+                          name="profesion"
+                          placeholder="Ej: Ingeniero de Software, Diseñador UX, Estudiante..."
+                          class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                        />
+                      </div>
+
+                      <div class="space-y-2">
+                        <label for="expectativas" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                          <span class="text-purple-500">🎯</span> Mis Objetivos Financieros
+                        </label>
+                        <textarea
+                          id="expectativas"
+                          name="expectativas"
+                          placeholder="Cuéntanos sobre tus metas financieras, qué esperas lograr con esta aplicación, o cualquier objetivo que tengas..."
+                          rows="4"
+                          class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200 resize-none"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Seguridad mejorada -->
+                <div class="border-none">
+                  <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-purple-100">
+                    <button type="button" class="accordion-trigger w-full px-6 py-5 text-left flex justify-between items-center hover:bg-purple-50 transition-colors duration-200 border-b border-purple-50">
+                      <div class="flex items-center gap-3 text-purple-800 font-bold text-lg">
+                        <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">🛡️</span>
+                        Seguridad y Contraseña
+                        <span class="icon-chevron-down accordion-icon text-purple-500 transform transition-transform duration-300">▼</span>
+                      </div>
+                    </button>
+                    <div class="accordion-content hidden px-6 pb-6 space-y-5">
+                      <p class="text-gray-600 mb-4 text-sm">Protege tu cuenta actualizando regularmente tu contraseña</p>
+                      
+                      <div class="space-y-4">
+                        <div class="space-y-2">
+                          <label for="currentPassword" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                            <span class="text-purple-500">🔐</span> Contraseña Actual
+                          </label>
+                          <input
+                            id="currentPassword"
+                            name="contrasenaActual"
+                            type="password"
+                            placeholder="Ingresa tu contraseña actual"
+                            class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                          />
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div class="space-y-2">
+                            <label for="newPassword" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                              <span class="text-purple-500">🔄</span> Nueva Contraseña
+                            </label>
+                            <input
+                              id="newPassword"
+                              name="nuevaContrasena"
+                              type="password"
+                              placeholder="Mínimo 8 caracteres"
+                              class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                            />
+                          </div>
+                          <div class="space-y-2">
+                            <label for="confirmPassword" class="text-gray-700 font-semibold text-sm flex items-center gap-2">
+                              <span class="text-purple-500">✅</span> Confirmar Contraseña
+                            </label>
+                            <input
+                              id="confirmPassword"
+                              name="confirmarContrasena"
+                              type="password"
+                              placeholder="Repite la nueva contraseña"
+                              class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-800 placeholder:text-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 rounded-xl transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                          <div class="flex items-start gap-3">
+                            <span class="text-purple-500 text-lg">💡</span>
+                            <div>
+                              <p class="text-purple-800 font-semibold text-sm">Recomendaciones de seguridad:</p>
+                              <ul class="text-purple-600 text-xs mt-1 space-y-1">
+                                <li>• Usa una combinación de letras, números y símbolos</li>
+                                <li>• Evita contraseñas que uses en otros servicios</li>
+                                <li>• Cambia tu contraseña regularmente</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" id="changePasswordBtn" class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold shadow-md transition-all duration-300 transform hover:scale-105">
+                          🛡️ Actualizar Contraseña
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons mejorados -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end pb-8 pt-6">
+              <a href="/principal" class="sm:w-auto w-full py-3 px-8 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold shadow-md transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 text-center">
+                <span>🏠</span> Volver al Principal
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Simple accordion functionality
+    // Configuración de APIs
+    const API_BASE = 'https://cautious-space-telegram-69wggvpp7p79f595w-3000.app.github.dev/api/auth';
+    const API_PRESUPUESTOS = 'https://cautious-space-telegram-69wggvpp7p79f595w-3000.app.github.dev/api/presupuestos';
+
+    // Función para cargar datos del usuario
+    async function cargarDatosUsuario() {
+        try {
+            console.log('🔄 Cargando datos del usuario...');
+            
+            const [userResponse, budgetsResponse] = await Promise.all([
+                fetch(`${API_BASE}/perfil`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                }),
+                fetch(`${API_PRESUPUESTOS}/activos`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+            ]);
+
+            if (!userResponse.ok) {
+                throw new Error(`Error ${userResponse.status}: ${userResponse.statusText}`);
+            }
+
+            const userResult = await userResponse.json();
+            let budgetsData = [];
+
+            if (budgetsResponse.ok) {
+                const budgetsResult = await budgetsResponse.json();
+                if (budgetsResult.success) {
+                    budgetsData = budgetsResult.data;
+                }
+            }
+
+            if (userResult.success) {
+                const userData = userResult.data;
+                console.log('✅ Datos del usuario cargados:', userData);
+                console.log('📊 Presupuestos activos:', budgetsData);
+                
+                actualizarVistaConDatos(userData, budgetsData);
+                
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('userForm').style.display = 'block';
+                
+            } else {
+                throw new Error(userResult.error || 'Error en la respuesta del servidor');
+            }
+
+        } catch (error) {
+            console.error('❌ Error cargando datos:', error);
+            mostrarError('Error al cargar los datos: ' + error.message);
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('userForm').style.display = 'block';
+        }
+    }
+
+    // Función para actualizar la vista con datos
+    function actualizarVistaConDatos(userData, budgetsData) {
+        // Información personal
+        document.getElementById('nombres').value = userData.Nombres || '';
+        document.getElementById('apellidos').value = userData.Apellidos || '';
+        document.getElementById('nombreUsuario').value = userData.NombreUsuario || '';
+        document.getElementById('correo').value = userData.Correo || '';
+        document.getElementById('profesion').value = userData.Profesion || '';
+        document.getElementById('expectativas').value = userData.Expectativas || '';
+
+        // Avatar
+        const avatarContainer = document.getElementById('avatarContainer');
+        if (userData.Foto) {
+            avatarContainer.innerHTML = `<img src="/uploads/${userData.Foto}" alt="Avatar" class="w-full h-full object-cover">`;
+        } else {
+            const initials = (userData.Nombres?.charAt(0) || '') + (userData.Apellidos?.charAt(0) || '');
+            avatarContainer.innerHTML = `<span class="text-white text-xl font-bold">${initials || 'U'}</span>`;
+        }
+
+        // Estadísticas de presupuestos
+        actualizarEstadisticasPresupuestos(budgetsData);
+    }
+
+    // Función para actualizar estadísticas de presupuestos
+    function actualizarEstadisticasPresupuestos(budgetsData) {
+        const statsContainer = document.getElementById('statsContainer');
+        
+        if (!budgetsData || budgetsData.length === 0) {
+            statsContainer.innerHTML = `
+                <div class="bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl shadow-lg overflow-hidden stats-card">
+                    <div class="p-5 text-center text-white">
+                        <div class="flex items-center justify-center gap-2 font-bold text-lg mb-2">
+                            <span>📊</span> Mis Presupuestos
+                        </div>
+                        <p class="text-gray-200 text-sm">No tienes presupuestos activos</p>
+                        <a href="/crearPresupuesto" class="inline-block mt-3 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors">
+                            Crear Presupuesto
+                        </a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        const totalPresupuesto = budgetsData.reduce((sum, budget) => sum + parseFloat(budget.monto || 0), 0);
+        const totalGastos = budgetsData.reduce((sum, budget) => sum + parseFloat(budget.gastos_totales || 0), 0);
+        const disponible = totalPresupuesto - totalGastos;
+
+        statsContainer.innerHTML = `
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg overflow-hidden stats-card">
+                <div class="p-5 text-center text-white">
+                    <div class="flex items-center justify-center gap-2 font-bold text-lg mb-2">
+                        <span>💰</span> Presupuestos Activos
+                    </div>
+                    <p class="text-2xl font-bold">${budgetsData.length}</p>
+                    <p class="text-purple-100 text-sm">presupuesto(s) en curso</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg overflow-hidden stats-card">
+                <div class="p-5 text-center text-white">
+                    <div class="flex items-center justify-center gap-2 font-bold text-lg mb-2">
+                        <span>📈</span> Total Presupuestado
+                    </div>
+                    <p class="text-2xl font-bold">$${totalPresupuesto.toFixed(2)}</p>
+                    <p class="text-blue-100 text-sm">límite total</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl shadow-lg overflow-hidden stats-card">
+                <div class="p-5 text-center text-white">
+                    <div class="flex items-center justify-center gap-2 font-bold text-lg mb-2">
+                        <span>💸</span> Gastado Total
+                    </div>
+                    <p class="text-2xl font-bold">$${totalGastos.toFixed(2)}</p>
+                    <p class="text-amber-100 text-sm">de tus presupuestos</p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-lg overflow-hidden stats-card">
+                <div class="p-5 text-center text-white">
+                    <div class="flex items-center justify-center gap-2 font-bold text-lg mb-2">
+                        <span>🎯</span> Disponible
+                    </div>
+                    <p class="text-2xl font-bold">$${disponible.toFixed(2)}</p>
+                    <p class="text-emerald-100 text-sm">para gastar</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Función para actualizar perfil (guardado automático)
+    async function actualizarCampo(campo, valor) {
+        try {
+            const datos = { [campo]: valor };
+            const response = await fetch(`${API_BASE}/perfil`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                mostrarExitoSuave('Cambios guardados');
+                return result.data;
+            } else {
+                throw new Error(result.error || 'Error en la respuesta del servidor');
+            }
+
+        } catch (error) {
+            console.error('Error actualizando perfil:', error);
+            mostrarError('Error al guardar: ' + error.message);
+            throw error;
+        }
+    }
+
+    // Función para cambiar contraseña
+    async function cambiarContraseña(contraseñaActual, nuevaContraseña) {
+        try {
+            const response = await fetch(`${API_BASE}/cambiar-password`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contraseñaActual, nuevaContraseña })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al cambiar contraseña');
+            }
+
+            const result = await response.json();
+            return result;
+
+        } catch (error) {
+            console.error('Error cambiando contraseña:', error);
+            throw error;
+        }
+    }
+
+    // Funciones de UI mejoradas
+    function mostrarExitoSuave(mensaje) {
+        // Toast suave en lugar de alerta grande
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: '#f0f9ff',
+            color: '#0369a1'
+        });
+        
+        Toast.fire({
+            icon: 'success',
+            title: mensaje
+        });
+    }
+
+    function mostrarError(mensaje) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: mensaje,
+            background: '#fef2f2',
+            color: '#dc2626'
+        });
+    }
+
+    function habilitarEdicionUsuario() {
+        Swal.fire({
+            title: 'Editar Nombre de Usuario',
+            text: 'Esta función estará disponible próximamente. Por ahora, contacta con soporte si necesitas cambiar tu nombre de usuario.',
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+            background: '#f0f9ff',
+            color: '#0369a1'
+        });
+    }
+
+    // Event Listeners para guardado automático
+    function configurarGuardadoAutomatico() {
+        const campos = ['nombres', 'apellidos', 'profesion', 'expectativas'];
+        
+        campos.forEach(campo => {
+            const elemento = document.getElementById(campo);
+            if (elemento) {
+                // Guardar cuando el usuario sale del campo
+                elemento.addEventListener('blur', async function() {
+                    if (this.value.trim() !== this.defaultValue) {
+                        try {
+                            await actualizarCampo(campo, this.value.trim());
+                            this.defaultValue = this.value.trim();
+                        } catch (error) {
+                            // El error ya se muestra en la función actualizarCampo
+                        }
+                    }
+                });
+
+                // Guardar con Enter
+                elemento.addEventListener('keypress', async function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    }
+                });
+            }
+        });
+    }
+
+    document.getElementById('changePasswordBtn').addEventListener('click', async function() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            mostrarError('Todos los campos de contraseña son requeridos');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            mostrarError('La nueva contraseña debe tener al menos 8 caracteres');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            mostrarError('Las contraseñas no coinciden');
+            return;
+        }
+
+        try {
+            await cambiarContraseña(currentPassword, newPassword);
+            mostrarExitoSuave('Contraseña cambiada exitosamente');
+            
+            // Limpiar campos
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+
+        } catch (error) {
+            mostrarError('Error: ' + error.message);
+        }
+    });
+
+    // Accordion functionality
     document.querySelectorAll('.accordion-trigger').forEach(trigger => {
-      trigger.addEventListener('click', () => {
-        const content = trigger.nextElementSibling;
-        const icon = trigger.querySelector('.accordion-icon');
-        
-        if (content.classList.contains('hidden')) {
-          content.classList.remove('hidden');
-          icon.classList.add('rotate-180');
-        } else {
-          content.classList.add('hidden');
-          icon.classList.remove('rotate-180');
-        }
-      });
-    });
-
-    // Manejar cambio de avatar
-    document.getElementById('avatarInput').addEventListener('change', function(e) {
-      if (this.files.length > 0) {
-        const formData = new FormData();
-        formData.append('avatar', this.files[0]);
-        
-        fetch('/actualizar-avatar', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Recargar la página para ver los cambios
-            window.location.reload();
-          } else {
-            alert('Error al actualizar el avatar: ' + (data.message || 'Error desconocido'));
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al subir la imagen');
+        trigger.addEventListener('click', () => {
+            const content = trigger.nextElementSibling;
+            const icon = trigger.querySelector('.accordion-icon');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
         });
-      }
     });
 
-    // Manejar cambio de contraseña
-    document.getElementById('changePasswordBtn').addEventListener('click', function() {
-      const currentPassword = document.getElementById('currentPassword').value;
-      const newPassword = document.getElementById('newPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        alert('Todos los campos son requeridos');
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        alert('Las contraseñas no coinciden');
-        return;
-      }
-
-      // Aquí iría la llamada al servidor para cambiar la contraseña
-      fetch('/cambiar-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-          confirmPassword
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Contraseña cambiada exitosamente');
-          // Limpiar campos
-          document.getElementById('currentPassword').value = '';
-          document.getElementById('newPassword').value = '';
-          document.getElementById('confirmPassword').value = '';
-        } else {
-          alert('Error: ' + (data.message || 'No se pudo cambiar la contraseña'));
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al cambiar la contraseña');
-      });
-    });
-
-    // Manejar eliminación de cuenta
-    document.getElementById('deleteAccountBtn').addEventListener('click', function() {
-      if (confirm('¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
-        fetch('/eliminar-cuenta', {
-          method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('Cuenta eliminada exitosamente');
-            window.location.href = '/';
-          } else {
-            alert('Error: ' + (data.message || 'No se pudo eliminar la cuenta'));
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al eliminar la cuenta');
-        });
-      }
-    });
-
-    // Botón cancelar
-    document.getElementById('cancelBtn').addEventListener('click', function() {
-      window.location.reload();
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Iniciando carga de datos del usuario...');
+        cargarDatosUsuario();
+        configurarGuardadoAutomatico();
     });
   </script>
 </body>
