@@ -368,7 +368,7 @@
     <!-- Tablas responsive -->
     <div class="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- GASTOS -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden" id="tablaGastos">
         <div class="px-4 py-3 border-b flex justify-between items-center">
           <h2 class="text-lg font-bold text-danger-600">Gastos</h2>
           <span class="bg-danger-100 text-danger-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -390,11 +390,11 @@
               <% gastos.forEach((gasto, index) => { %>
                 <tr class="transition-colors hover:bg-danger-50 <%= gasto.deleted ? 'hidden' : '' %>">
                   <td class="p-3 text-gray-500"><%= index + 1 %></td>
-				  <td class="p-3 font-medium"><%= gasto.tipo %></td> <!-- Nueva celda -->
-                  <td class="p-3 font-medium descripcion-cell"><%= gasto.descripcion %></td>
-                  <td class="p-3 text-right text-danger-600 font-medium">$<%= parseFloat(gasto.valor).toFixed(2) %></td>
+				  <td class="p-3 font-medium"><%= gasto.TipoDeMonto %></td> <!-- Nueva celda -->
+                  <td class="p-3 font-medium descripcion-cell"><%= gasto.Descripcion %></td>
+                  <td class="p-3 text-right text-danger-600 font-medium">$<%= parseFloat(gasto.Monto).toFixed(2) %></td>
                   <td class="p-3 text-center space-x-3">
-                    <button onclick="openEditModal('gasto', '<%= gasto.idGastos %>', '<%= gasto.descripcion %>', '<%= gasto.valor %>')" 
+                    <button onclick="openEditModal('gasto', '<%= gasto.idGastos %>', '<%= gasto.Descripcion %>', '<%= gasto.Monto %>')" 
 						  class="text-primary-600 hover:text-primary-700" title="Editar">
 					<svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -420,7 +420,7 @@
       </div>
 
       <!-- INGRESOS -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden" id="tablaIngresos">
         <div class="px-4 py-3 border-b flex justify-between items-center">
           <h2 class="text-lg font-bold text-success-600">Ingresos</h2>
           <span class="bg-success-100 text-success-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -442,11 +442,11 @@
               <% ingresos.forEach((ingreso, index) => { %>
                 <tr class="transition-colors hover:bg-success-50 <%= ingreso.deleted ? 'hidden' : '' %>">
                   <td class="p-3 text-gray-500"><%= index + 1 %></td>
-				  <td class="p-3 font-medium"><%= ingreso.tipo %></td> <!-- Nueva celda -->
-                  <td class="p-3 font-medium descripcion-cell"><%= ingreso.descripcion %></td>
-                  <td class="p-3 text-right text-success-600 font-medium">$<%= parseFloat(ingreso.valor).toFixed(2) %></td>
+				  <td class="p-3 font-medium"><%= ingreso.TipoDeMonto %></td> <!-- Nueva celda -->
+                  <td class="p-3 font-medium descripcion-cell"><%= ingreso.Descripcion %></td>
+                  <td class="p-3 text-right text-success-600 font-medium">$<%= parseFloat(ingreso.Monto).toFixed(2) %></td>
                   <td class="p-3 text-center space-x-3">
-                    <button onclick="openEditModal('ingreso', '<%= ingreso.idIngresos %>', '<%= ingreso.descripcion %>', '<%= ingreso.valor %>')" 
+                    <button onclick="openEditModal('ingreso', '<%= ingreso.idIngresos %>', '<%= ingreso.Descripcion %>', '<%= ingreso.Monto %>')" 
 							  class="text-primary-600 hover:text-primary-700" title="Editar">
 						<svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -538,9 +538,11 @@
   <script>
     // Configuración
     const API_BASE = 'https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos';
-    const presupuestoId = '<%= presupuestoId %>'; // Esto SÍ viene de tu ruta
+    const API_INGRESOS = 'https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/ingresos';
+    const API_GASTOS = 'https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/gastos';
+    const presupuestoId = '<%= presupuestoId %>';
 
-    // Función simple para cargar y actualizar datos
+    // Función principal para cargar datos
     async function cargarDatosPresupuesto() {
         try {
             console.log('Cargando datos para presupuesto:', presupuestoId);
@@ -565,13 +567,16 @@
                 
                 // Actualizar solo los elementos esenciales
                 actualizarVistaConDatos(datos);
+                
+                // Cargar ingresos y gastos
+                await cargarIngresos();
+                await cargarGastos();
             } else {
                 throw new Error(result.error);
             }
 
         } catch (error) {
             console.error('Error:', error);
-            // No mostrar alerta para no interrumpir la experiencia
         }
     }
 
@@ -651,13 +656,253 @@
         console.log('Vista actualizada correctamente');
     }
 
+    // Funciones para cargar ingresos y gastos
+    async function cargarIngresos() {
+        try {
+            const response = await fetch(`${API_INGRESOS}/presupuesto/${presupuestoId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Error al cargar ingresos');
+
+            const result = await response.json();
+            
+            if (result.success) {
+                actualizarTablaIngresos(result.data);
+            }
+        } catch (error) {
+            console.error('Error cargando ingresos:', error);
+        }
+    }
+
+    async function cargarGastos() {
+        try {
+            const response = await fetch(`${API_GASTOS}/presupuesto/${presupuestoId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Error al cargar gastos');
+
+            const result = await response.json();
+            
+            if (result.success) {
+                actualizarTablaGastos(result.data);
+            }
+        } catch (error) {
+            console.error('Error cargando gastos:', error);
+        }
+    }
+
+    // Función para actualizar tabla de ingresos
+    function actualizarTablaIngresos(ingresos) {
+        const tbody = document.querySelectorAll('tbody')[1]; // Tabla de ingresos
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        if (ingresos && ingresos.length > 0) {
+            ingresos.forEach((ingreso, index) => {
+                const row = document.createElement('tr');
+                row.className = 'transition-colors hover:bg-success-50';
+                row.innerHTML = `
+                    <td class="p-3 text-gray-500">${index + 1}</td>
+                    <td class="p-3 font-medium">${ingreso.TipoDeMonto || 'Sin tipo'}</td>
+                    <td class="p-3 font-medium descripcion-cell">${ingreso.Descripcion || 'Sin descripción'}</td>
+                    <td class="p-3 text-right text-success-600 font-medium">$${parseFloat(ingreso.Monto || 0).toFixed(2)}</td>
+                    <td class="p-3 text-center space-x-3">
+                        <button onclick="openEditModal('ingreso', '${ingreso.idIngresos}', '${ingreso.Descripcion}', '${ingreso.Monto}')" 
+                                class="text-primary-600 hover:text-primary-700" title="Editar">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="confirmDelete('ingreso', '${ingreso.idIngresos}')" 
+                                class="text-danger-600 hover:text-danger-700" title="Eliminar">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Actualizar contador
+            const contador = document.querySelector('.bg-success-100');
+            if (contador) {
+                contador.textContent = `${ingresos.length} registros`;
+            }
+        } else {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">No hay ingresos registrados</td>
+                </tr>
+            `;
+        }
+    }
+
+    // Función para actualizar tabla de gastos
+    function actualizarTablaGastos(gastos) {
+        const tbody = document.querySelectorAll('tbody')[0]; // Tabla de gastos
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        if (gastos && gastos.length > 0) {
+            gastos.forEach((gasto, index) => {
+                const row = document.createElement('tr');
+                row.className = 'transition-colors hover:bg-danger-50';
+                row.innerHTML = `
+                    <td class="p-3 text-gray-500">${index + 1}</td>
+                    <td class="p-3 font-medium">${gasto.TipoDeMonto || 'Sin tipo'}</td>
+                    <td class="p-3 font-medium descripcion-cell">${gasto.Descripcion || 'Sin descripción'}</td>
+                    <td class="p-3 text-right text-danger-600 font-medium">$${parseFloat(gasto.Monto || 0).toFixed(2)}</td>
+                    <td class="p-3 text-center space-x-3">
+                        <button onclick="openEditModal('gasto', '${gasto.idGastos}', '${gasto.Descripcion}', '${gasto.Monto}')" 
+                                class="text-primary-600 hover:text-primary-700" title="Editar">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="confirmDelete('gasto', '${gasto.idGastos}')" 
+                                class="text-danger-600 hover:text-danger-700" title="Eliminar">
+                            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Actualizar contador
+            const contador = document.querySelector('.bg-danger-100');
+            if (contador) {
+                contador.textContent = `${gastos.length} registros`;
+            }
+        } else {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">No hay gastos registrados</td>
+                </tr>
+            `;
+        }
+    }
+
+    // Función para abrir modal de edición
+    function openEditModal(type, id, descripcion, valor) {
+        document.getElementById('editType').value = type;
+        document.getElementById('editId').value = id;
+        document.getElementById('editDescripcion').value = descripcion;
+        document.getElementById('editValor').value = valor;
+        document.getElementById('modalTitle').textContent = `Editar ${type === 'gasto' ? 'Gasto' : 'Ingreso'}`;
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    // Función para cerrar modales
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Manejar envío del formulario de edición
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            id: document.getElementById('editId').value,
+            type: document.getElementById('editType').value,
+            descripcion: document.getElementById('editDescripcion').value,
+            valor: document.getElementById('editValor').value
+        };
+
+        try {
+            const response = await fetch(`https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/${formData.type}s/${formData.id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    descripcion: formData.descripcion,
+                    valor: formData.valor
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                closeModal('editModal');
+                // Recargar los datos
+                await cargarDatosPresupuesto();
+                Swal.fire('¡Éxito!', 'Registro actualizado correctamente', 'success');
+            } else {
+                Swal.fire('Error', result.error || 'No se pudo actualizar', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Error de conexión', 'error');
+        }
+    });
+
+    // Función para confirmar eliminación
+    async function confirmDelete(type, id) {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: `Esta acción eliminará el ${type === 'gasto' ? 'gasto' : 'ingreso'} seleccionado`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/${type}s/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Recargar los datos
+                    await cargarDatosPresupuesto();
+                    Swal.fire(
+                        '¡Eliminado!',
+                        `El ${type === 'gasto' ? 'gasto' : 'ingreso'} ha sido eliminado.`,
+                        'success'
+                    );
+                } else {
+                    Swal.fire('Error', result.error || 'No se pudo eliminar', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Error de conexión', 'error');
+            }
+        }
+    }
+
+    // Cerrar modal al hacer clic fuera del contenido
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+
     // Cargar datos cuando la página esté lista
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Iniciando carga de datos...');
         cargarDatosPresupuesto();
     });
-
-  </script>
+</script>
   
 </body>
 </html>
