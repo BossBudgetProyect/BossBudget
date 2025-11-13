@@ -517,7 +517,7 @@
     try {
       console.log('🔄 Cargando presupuestos desde API...');
       
-      const response = await fetch('https://cautious-space-telegram-69wggvpp7p79f595w-3000.app.github.dev/api/presupuestos', {
+      const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -794,7 +794,7 @@
       }
     });
     
-    const apiUrl = `https://cautious-space-telegram-69wggvpp7p79f595w-3000.app.github.dev/api/presupuestos/${currentBudgetId}`;
+    const apiUrl = `https://bossbudgetapi-production.up.railway.app/api/presupuestos/${currentBudgetId}`;
     console.log('🔍 DEBUG - URL de la API:', apiUrl);
     
     try {
@@ -881,7 +881,7 @@
         }
       });
 
-      const apiUrl = `https://cautious-space-telegram-69wggvpp7p79f595w-3000.app.github.dev/api/presupuestos/${currentBudgetId}`;
+      const apiUrl = `https://bossbudgetapi-production.up.railway.app/api/presupuestos/${currentBudgetId}`;
       console.log('🔍 DEBUG - URL de eliminación:', apiUrl);
 
       try {
