@@ -7,259 +7,566 @@
   <meta name="description" content="Página de inicio de sesión">
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ✅ AGREGAR SWEETALERT2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
+  <!-- Cargar fuentes correctamente -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
-  <title>Inicio de Sesión - BossBudget</title>
-  <style>
-    @layer utilities {
-      .font-bebas { font-family: 'Bebas Neue', sans-serif; }
-    }
+  <title>Inicio</title>
+    <style>
+      @layer utilities {
+  .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+}
 
-    .modern-input {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      border: 2px solid rgba(234, 179, 8, 0.5);
+        @keyframes shrinkLogo {
+    0% {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0%;
+        transform: translate(-50%, -50%) scale(1);
     }
-
-    .modern-input:focus {
-      background: rgba(255, 255, 255, 1);
-      border-color: rgb(192, 38, 211);
-      box-shadow: 0 0 0 4px rgba(243, 240, 240, 0.1);
-      transform: translateY(-2px);
+    10% { 
+        width: 180vw;
+        height: 180vw; /* Asegurar proporción cuadrada */
+        border-radius: 0%;
     }
-
-    .modern-button {
-      background: linear-gradient(135deg, rgb(0, 0, 0) 0%, #000000 100%);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+    25% {
+        width: 100vw;
+        height: 100vw;
+        border-radius: 50%;
     }
-
-    .modern-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
+    50% {
+        width: 150px;
+        height: 150px;
+        border-radius: 100%;
     }
-
-    .modern-button:hover::before {
-      left: 100%;
+    80% {
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
     }
-
-    .modern-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(192, 38, 211, 0.4);
+    100% {
+        width: 0;
+        height: 0;
+        opacity: -1;
+        border-radius: 100%;
+        transform: translate(-50%, -250%) scale(0);
     }
-
-    @keyframes fadeInUp {
-      from {
+	}
+  /* Mejoras de transición para interacciones */
+  .transition-all {
+    transition: all 3s ease;
+  }
+@keyframes fadeInUp {
+    from {
         opacity: 0;
         transform: translateY(30px);
-      }
-      to {
+    }
+    to {
         opacity: 1;
         transform: translateY(0);
-      }
     }
+}
+ @keyframes blob {
+    0%, 100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+}
 
-    .fade-in {
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
+.animate-blob {
+    animation: blob 7s infinite;
+}
 
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+.modern-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.modern-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #c026d3, #eab308);
+    transition: width 0.3s ease;
+}
+
+.modern-link:hover::after {
+    width: 100%;
+}
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
     }
-  </style>
-</head>
-<body class="relative min-h-screen bg-gray-900">
-  <img src="/img/fondoiniciosesion.png" class="absolute inset-0 w-full h-full object-cover -z-10" alt="Fondo inicio sesión">
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.modern-input {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(234, 179, 8, 0.5);
+}
+
+.modern-input:focus {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgb(192, 38, 211);
+    box-shadow: 0 0 0 4px rgba(243, 240, 240, 0.1);
+    transform: translateY(-2px);
+}
+
+.modern-button {
+    background: linear-gradient(135deg, rgb(0, 0, 0) 0%, #000000 100%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.modern-button:hover::before {
+    left: 100%;
+}
+
+.modern-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(192, 38, 211, 0.4);
+}
+
+.fade-in {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.logo-float {
+    animation: float 3s ease-in-out infinite;
+}
   
-  <div class="min-h-screen flex items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md fade-in">
-      <div class="glass-effect rounded-2xl shadow-2xl p-8 md:p-10">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-bebas font-bold text-white mb-2">BossBudget</h1>
-          <p class="text-gray-300">Controla tus finanzas de forma inteligente</p>
-        </div>
-
-        <!-- Login Form -->
-        <form id="loginForm" class="space-y-6">
-          <!-- Email Input -->
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-200 mb-2">
-              📧 Correo Electrónico
-            </label>
-            <input
-              id="email"
-              type="email"
-              name="email"
+  
+    </style>
+</head>
+<body class="relative min-h-screen">
+  <img src="img/fondoiniciosesion.png" class="absolute inset-0 w-full h-full object-cover -z-10 glass-effect" alt="Fondo inicio sesión"> 
+    
+    <div id="logo-container" class="logo-container bg-white"></div>
+<div class="content-wrapper flex min-h-screen flex-col justify-center px-6 py-12 lg:px-14">
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <img class="mx-auto h-40 md:h-60 lg:h-80 logo-float drop-shadow-2xl" style="animation-delay: 0s" src="/img/LogoCirculo.png" alt="Logo de la empresa - Inicio de sesión">
+    </div>
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm fade-in" style="animation-delay: 0s">
+       <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center text-black drop-shadow-lg" style="font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px;">Inicia sesión en tu cuenta</h2>
+      <!-- Contenedor con efecto glass -->
+      <div class="glass-effect rounded-2xl p-8 shadow-2xl modern-input glass-effect">
+      <form class="space-y-4" id="loginForm" method="POST" action="/login">
+        <div>
+          <label for="email" class="block text-sm/6 font-medium text-gray-900">
+            Correo electrónico
+          </label>
+          <div class="mt-1">
+            <input 
+              type="email" 
+              name="email" 
+              id="email" 
+              autocomplete="email" 
+              required 
+              aria-required="true"
               placeholder="tu@email.com"
-              required
-              class="modern-input w-full px-4 py-3 rounded-lg text-gray-800 placeholder:text-gray-500 focus:outline-none"
-            />
+              aria-describedby="email-help"
+              class="border-2 border-yellow-400 block w-full rounded-md bg-white px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-black placeholder:text-black focus:outline-2 focus:-outline-offset-2 focus:outline-fuchsia-600 sm:text-sm/6 transition-all duration-200">
           </div>
-
-          <!-- Password Input -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-200 mb-2">
-              🔐 Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              name="pass"
-              placeholder="Mínimo 6 caracteres"
-              required
-              class="modern-input w-full px-4 py-3 rounded-lg text-gray-800 placeholder:text-gray-500 focus:outline-none"
-            />
-          </div>
-
-          <!-- Remember Me & Forgot Password -->
+          <div id="email-help" class="sr-only">Ingresa tu correo electrónico registrado</div>
+        </div>
+  
+        <div>
           <div class="flex items-center justify-between">
-            <label class="flex items-center">
-              <input type="checkbox" class="w-4 h-4 rounded" />
-              <span class="ml-2 text-sm text-gray-300">Recuérdame</span>
+            <label for="password" class="block text-sm/6 font-medium text-gray-900">
+              Contraseña
             </label>
-            <a href="/forgot-password" class="text-sm text-amber-400 hover:text-amber-300">
-              ¿Olvidaste contraseña?
-            </a>
           </div>
+          <div class="mt-1">
+            <input 
+              type="password" 
+              name="pass" 
+              id="password" 
+              autocomplete="current-password" 
+              placeholder="••••••••"
+              required
+              aria-required="true"
+              aria-describedby="password-help"
+              class="border-2 border-yellow-400 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-fuchsia-600 sm:text-sm/6 transition-all duration-200">
+          </div>
+          <div id="password-help" class="sr-only">Ingresa tu contraseña</div>
+        </div>
 
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            class="modern-button w-full py-3 px-4 rounded-lg text-white font-semibold text-lg transition-all duration-300"
-          >
-            ✨ Iniciar Sesión
+        <!-- Enlace de olvidó contraseña - ESPACIO REDUCIDO -->
+        <div class="pt-1">
+          <a href="/forgot-password" class="modern-link font-semibold text-fuchsia-700 hover:text-yellow-700">
+            ¿Olvidó la contraseña?
+          </a>
+        </div>
+  
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            id="submit-btn"
+            aria-label="Iniciar sesión en la cuenta"
+            class="modern-button flex w-full justify-center rounded-xl px-4 py-3 text-base
+              font-bold text-white shadow-lg tracking-wide">
+            <span id="button-text" class="text-white">Ingresar</span>
+            <span id="loading-spinner" class="hidden ml-2">⌛</span>
           </button>
-        </form>
-
-        <!-- Divider -->
-        <div class="my-6 flex items-center">
-          <div class="flex-1 border-t border-gray-400"></div>
-          <span class="px-3 text-gray-400">o</span>
-          <div class="flex-1 border-t border-gray-400"></div>
         </div>
-
-        <!-- Links -->
-        <div class="space-y-3 text-center">
-          <p class="text-gray-300">
-            ¿No tienes cuenta?
-            <a href="/registro" class="text-amber-400 hover:text-amber-300 font-semibold">
-              Regístrate aquí
-            </a>
-          </p>
-          <p class="text-gray-400 text-xs">
-            Al iniciar sesión, aceptas nuestros
-            <a href="#" class="text-amber-400 hover:text-amber-300">Términos de Servicio</a>
-          </p>
-        </div>
-      </div>
-
-      <!-- Info Cards -->
-      <div class="mt-8 grid grid-cols-3 gap-4 text-center text-white">
-        <div class="glass-effect rounded-lg p-4">
-          <p class="text-2xl">💰</p>
-          <p class="text-xs mt-2">Gestiona Presupuestos</p>
-        </div>
-        <div class="glass-effect rounded-lg p-4">
-          <p class="text-2xl">📊</p>
-          <p class="text-xs mt-2">Analiza Gastos</p>
-        </div>
-        <div class="glass-effect rounded-lg p-4">
-          <p class="text-2xl">🎯</p>
-          <p class="text-xs mt-2">Logra Metas</p>
-        </div>
-      </div>
+      </form>
+  
+      <p class="mt-8 text-center text-sm/6 text-gray-500">
+        ¿No tienes una cuenta?
+        <a href="/registro" class="font-semibold text-fuchsia-700 hover:text-yellow-600 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 rounded px-1 transition-colors duration-200">
+          Regístrate
+        </a>
+      </p>
     </div>
   </div>
 
-  <script>
-    const API_BASE_URL = '/api';
-
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+<!-- ✅ SCRIPT MEJORADO CON ALERTAS BONITAS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const submitBtn = document.getElementById('submit-btn');
+      const buttonText = document.getElementById('button-text');
+      const loadingSpinner = document.getElementById('loading-spinner');
       
-      const email = document.getElementById('email').value.trim();
-      const pass = document.getElementById('password').value.trim();
-
-      if (!email || !pass) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Campos vacíos',
-          text: 'Por favor completa todos los campos',
-          background: '#1f2937',
-          color: '#fff'
-        });
-        return;
-      }
-
-      try {
-        console.log('🔄 Enviando login...');
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, pass })
-        });
-
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('❌ Error response:', errorData);
-          throw new Error(`HTTP ${response.status}: ${errorData}`);
+      // ✅ FUNCIÓN MEJORADA PARA MOSTRAR ALERTAS BONITAS
+      function showAlert(title, message, icon, callback = null) {
+        // Verificar si SweetAlert2 está disponible
+        if (typeof Swal === 'undefined') {
+          alert(`${title}: ${message}`);
+          if (callback) callback();
+          return;
         }
 
-        const data = await response.json();
-        console.log('✅ Login exitoso:', data);
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          }
+        });
 
-        if (data.success) {
+        // Alertas especiales para éxito/error
+        if (icon === 'success' && title.includes('éxito')) {
           Swal.fire({
+            title: '🎉 ' + title,
+            text: message,
             icon: 'success',
-            title: '¡Bienvenido!',
-            text: 'Redirigiendo...',
-            allowOutsideClick: false,
-            background: '#1f2937',
-            color: '#fff',
-            didOpen: () => {
-              setTimeout(() => {
-                window.location.href = '/principal';
-              }, 1500);
-            }
+            confirmButtonText: '¡Genial!',
+            confirmButtonColor: '#10b981',
+            background: '#f0fdf4',
+            iconColor: '#10b981',
+            timer: 3000,
+            timerProgressBar: true,
+            willClose: callback
+          });
+        } else if (icon === 'error') {
+          Swal.fire({
+            title: '❌ ' + title,
+            text: message,
+            icon: 'error',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#ef4444',
+            background: '#fef2f2',
+            iconColor: '#ef4444'
           });
         } else {
-          throw new Error(data.message || 'Error en el login');
+          Toast.fire({
+            icon: icon,
+            title: message
+          });
         }
-
-      } catch (error) {
-        console.error('❌ Error en login:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error de Login',
-          text: error.message || 'No se pudo completar el login',
-          background: '#1f2937',
-          color: '#fff'
-        });
       }
+
+      if (loginForm && submitBtn) {
+          loginForm.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              
+              // Validación básica antes de enviar
+              const email = document.getElementById('email').value;
+              const password = document.getElementById('password').value;
+
+              if (!email || !password) {
+                showAlert('Campos requeridos', 'Por favor completa todos los campos', 'warning');
+                return;
+              }
+
+              // Validación de email
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(email)) {
+                showAlert('Email inválido', 'Por favor ingresa un email válido', 'warning');
+                document.getElementById('email').focus();
+                return;
+              }
+
+              // Deshabilitar botón durante el envío
+              submitBtn.disabled = true;
+              buttonText.textContent = 'Iniciando sesión...';
+              loadingSpinner.classList.remove('hidden');
+
+              try {
+                  // Mostrar loading bonito
+                  if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                      title: 'Verificando credenciales...',
+                      text: 'Estamos iniciando tu sesión',
+                      allowOutsideClick: false,
+                      didOpen: () => {
+                        Swal.showLoading();
+                      }
+                    });
+                  }
+
+                  console.log('📤 Enviando credenciales...');
+                  const response = await fetch('/api/auth/login', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      credentials: 'include',
+                      body: JSON.stringify({
+                          email: email,
+                          pass: password
+                      })
+                  });
+
+                  const result = await response.json();
+                  console.log('📨 Respuesta completa del login:', result);
+
+                  // Cerrar loading
+                  if (typeof Swal !== 'undefined') {
+                    Swal.close();
+                  }
+
+                  if (!response.ok) {
+                      throw new Error(result.error || 'Error en el login');
+                  }
+
+                  // ✅ VERIFICAR ÉXITO DEL LOGIN CON ALERTA BONITA
+                  if (result.success) {
+                      console.log('✅ Login exitoso');
+                      
+                      // ✅ SOLO guardar datos del usuario en localStorage
+                      if (result.data && result.data.usuario) {
+                          localStorage.setItem('userData', JSON.stringify(result.data.usuario));
+                      }
+                      
+                      console.log('🍪 Cookie establecida por el backend. Cookies actuales:', document.cookie);
+                      
+                      // Mostrar alerta de éxito bonita
+                      showAlert(
+                        '¡Inicio de Sesión Exitoso!', 
+                        '🎊 Bienvenido de vuelta a tu control financiero', 
+                        'success',
+                        () => {
+                          window.location.href = '/principal';
+                        }
+                      );
+                      
+                      // Redirigir automáticamente después de 2 segundos
+                      setTimeout(() => {
+                          window.location.href = '/principal';
+                      }, 2000);
+                      
+                  } else {
+                      throw new Error(result.message || 'Error en la autenticación');
+                  }
+
+              } catch (error) {
+                  console.error('❌ Error en login:', error);
+                  
+                  // Manejar diferentes tipos de errores con alertas específicas
+                  let errorTitle = 'Error en el inicio de sesión';
+                  let errorMessage = error.message || 'Credenciales incorrectas';
+                  
+                  // Mensajes específicos para errores comunes
+                  if (error.message.includes('credenciales') || error.message.includes('incorrect')) {
+                    errorTitle = 'Credenciales incorrectas';
+                    errorMessage = 'El email o contraseña no son válidos. Verifica tus datos.';
+                  } else if (error.message.includes('email')) {
+                    errorTitle = 'Email no encontrado';
+                    errorMessage = 'No existe una cuenta con este email. ¿Quieres registrarte?';
+                  } else if (error.message.includes('red') || error.message.includes('fetch')) {
+                    errorTitle = 'Error de conexión';
+                    errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+                  } else if (error.message.includes('cuenta') || error.message.includes('verificar')) {
+                    errorTitle = 'Cuenta no verificada';
+                    errorMessage = 'Tu cuenta necesita verificación. Revisa tu email.';
+                  }
+                  
+                  showAlert(errorTitle, errorMessage, 'error');
+                  
+                  // Rehabilitar botón
+                  submitBtn.disabled = false;
+                  buttonText.textContent = 'Ingresar';
+                  loadingSpinner.classList.add('hidden');
+              }
+          });
+      }
+    
+    // Mejorar focus para usuarios de teclado
+    const focusableElements = document.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    focusableElements.forEach(element => {
+        element.addEventListener('focus', function() {
+            this.classList.add('ring-2', 'ring-fuchsia-500', 'ring-offset-2');
+        });
+        
+        element.addEventListener('blur', function() {
+            this.classList.remove('ring-2', 'ring-fuchsia-500', 'ring-offset-2');
+        });
     });
-  </script>
-</body>
+    
+    // Validación en tiempo real mejorada
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email && !emailRegex.test(email)) {
+                this.classList.add('border-red-500');
+                this.setAttribute('aria-invalid', 'true');
+                showAlert('Email inválido', 'El formato del email no es correcto', 'warning');
+            } else {
+                this.classList.remove('border-red-500');
+                this.setAttribute('aria-invalid', 'false');
+            }
+        });
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener('blur', function() {
+            if (this.value && this.value.length < 1) {
+                this.classList.add('border-red-500');
+                this.setAttribute('aria-invalid', 'true');
+            } else {
+                this.classList.remove('border-red-500');
+                this.setAttribute('aria-invalid', 'false');
+            }
+        });
+    }
+
+    // ✅ MOSTRAR MENSAJES DEL SERVIDOR SI EXISTEN
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+    const info = urlParams.get('info');
+    
+    if (success) {
+      showAlert('¡Éxito!', decodeURIComponent(success), 'success');
+      // Limpiar URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    if (error) {
+      showAlert('Error', decodeURIComponent(error), 'error');
+      // Limpiar URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (info) {
+      showAlert('Información', decodeURIComponent(info), 'info');
+      // Limpiar URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  });
+</script>
+
+<script>
+  // ✅ USAR URLS RELATIVAS EN LUGAR DE ABSOLUTAS
+  const API_BASE_URL = '/api'; // Esto SIEMPRE va al proxy local
+
+  document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      
+      // Cambiar TODAS las llamadas fetch de:
+      // fetch('https://bossbudget-production.up.railway.app/api/auth/login', ...)
+      // a:
+      // fetch(`${API_BASE_URL}/auth/login`, ...)
+      
+      if (loginForm) {
+          loginForm.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              
+              const email = document.getElementById('email').value;
+              const pass = document.getElementById('pass').value;
+              
+              try {
+                  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                      method: 'POST',
+                      credentials: 'include', // ✅ IMPORTANTE: enviar cookies
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ email, pass })
+                  });
+                  
+                  if (!response.ok) {
+                      throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  
+                  const data = await response.json();
+                  console.log('✅ Login exitoso:', data);
+                  
+                  // Redirigir a /principal
+                  window.location.href = '/principal';
+              } catch (error) {
+                  console.error('❌ Error en login:', error);
+              }
+          });
+      }
+  });
+</script>
 </html>
