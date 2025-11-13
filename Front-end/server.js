@@ -48,33 +48,31 @@ const corsOptions = {
 
 // ✅ MIDDLEWARES GLOBALES - EN ORDEN CORRECTO
 app.use(cors(corsOptions));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ✅ DEBUG: Ver cookies recibidas
-app.use((req, res, next) => {
-  console.log('🍪 req.cookies:', req.cookies);
-  next();
-});
-
-// ✅ Aplicar middleware de inyección de datos GLOBALMENTE
-app.use(injectUserData);
-
-// Configuración de vistas
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// ✅ CONFIGURAR PROXY CON MEJOR MANEJO DE COOKIES Y ERRORES
+// ✅ CONFIGURAR PROXY (colocado ANTES de body parsers)
 const BACKEND_API_URL = process.env.BACKEND_API_URL || 'https://bossbudgetapi-production.up.railway.app';
 const apiProxy = createProxyMiddleware('/api', {
   target: BACKEND_API_URL,
   changeOrigin: true,
   secure: true,
   logLevel: 'debug',
-  pathRewrite: {
-    '^/api/': '/', // Remover /api del path hacia el backend
+  proxyTimeout: 20000,
+  timeout: 20000,
+  // No pathRewrite: reenviamos la misma ruta recibida al backend
+  onProxyReq(proxyReq, req, res) {
+    try {
+      console.log('[PROXY REQ] =>', req.method, req.url);
+      console.log('[PROXY REQ] headers from client:', req.headers);
+
+      // Si express ya parseó el body (req.body existe), reescribirlo en la petición proxied
+      if (req.body && Object.keys(req.body).length) {
+        const bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      }
+    } catch (err) {
+      console.error('Error en onProxyReq:', err);
+    }
   },
   onProxyRes(proxyRes, req, res) {
     console.log(`[PROXY] ${req.method} ${req.path} -> ${proxyRes.statusCode}`);
@@ -114,8 +112,26 @@ const apiProxy = createProxyMiddleware('/api', {
   }
 });
 
-// ✅ Aplicar proxy ANTES de las demás rutas
+// Aplicar proxy ANTES de los middlewares que parsean el body
 app.use('/api', apiProxy);
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ DEBUG: Ver cookies recibidas
+app.use((req, res, next) => {
+  console.log('🍪 req.cookies:', req.cookies);
+  next();
+});
+
+// ✅ Aplicar middleware de inyección de datos GLOBALMENTE
+app.use(injectUserData);
+
+// Configuración de vistas
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 
 // ✅ Aplicar todas las rutas
 app.use('/', otherRoutes);
