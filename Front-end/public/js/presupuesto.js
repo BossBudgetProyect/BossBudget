@@ -1,11 +1,13 @@
-// Elementos del formulario
-const tipoMovimiento = document.getElementById('menu1');
-const categoria = document.getElementById('menu2');
-const tipo = document.getElementById('menu3');
-const montoInput = document.getElementById('monto');
-const botonRegistrar = document.querySelector('button');
+// Envolver la inicialización para evitar errores cuando el script se carga antes del DOM
+document.addEventListener('DOMContentLoaded', () => {
+  // Elementos del formulario
+  const tipoMovimiento = document.getElementById('menu1');
+  const categoria = document.getElementById('menu2');
+  const tipo = document.getElementById('menu3');
+  const montoInput = document.getElementById('monto');
+  const botonRegistrar = document.querySelector('button');
 
-// Diccionarios de texto para construir IDs
+  // Diccionarios de texto para construir IDs
 const categoriaMap = {
   opcion1: "Casa",
   opcion2: "Comida",
@@ -23,36 +25,44 @@ const menu1Map = {
   opcion2: "Real"
 };
 
-// Evento principal
-botonRegistrar.addEventListener('click', () => {
-  const tipoMov = tipoMovimiento.value;
-  const cat = categoria.value;
-  const tipoVal = tipo.value;
-  const monto = parseFloat(montoInput.value) || 0;
+  // Evento principal (con comprobaciones de existencia)
+  if (!botonRegistrar) return;
+  botonRegistrar.addEventListener('click', () => {
+    if (!tipoMovimiento || !categoria || !tipo || !montoInput) {
+      alert('Formulario incompleto o cargado incorrectamente.');
+      return;
+    }
 
-  if (monto <= 0) {
-    alert("Por favor, introduce un monto válido.");
-    return;
-  }
+    const tipoMov = tipoMovimiento.value;
+    const cat = categoria.value;
+    const tipoVal = tipo.value;
+    const monto = parseFloat(montoInput.value) || 0;
 
-  const catText = categoriaMap[cat];
-  const tipoText = tipoMap[tipoVal];
-  const menu1Text = menu1Map[tipoMov];
+    if (monto <= 0) {
+      alert("Por favor, introduce un monto válido.");
+      return;
+    }
 
-  const idCelda = `${tipoText.toLowerCase()}${catText}${menu1Text}`;
-  const celda = document.getElementById(idCelda);
+    const catText = categoriaMap[cat];
+    const tipoText = tipoMap[tipoVal];
+    const menu1Text = menu1Map[tipoMov];
 
-  if (!celda) {
-    alert("Error al ubicar la celda");
-    return;
-  }
+    const idCelda = `${tipoText.toLowerCase()}${catText}${menu1Text}`;
+    const celda = document.getElementById(idCelda);
 
-  const valorActual = parseFloat(celda.textContent.replace('$', '')) || 0;
-  const nuevoValor = valorActual + monto;
-  celda.textContent = `${nuevoValor}$`;
+    if (!celda) {
+      alert("Error al ubicar la celda");
+      return;
+    }
 
-  actualizarBalance(catText);
-  montoInput.value = "";
+    const valorActual = parseFloat(celda.textContent.replace('$', '')) || 0;
+    const nuevoValor = valorActual + monto;
+    celda.textContent = `${nuevoValor}$`;
+
+    actualizarBalance(catText);
+    montoInput.value = "";
+  });
+
 });
 
 // Función para actualizar el balance

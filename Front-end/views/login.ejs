@@ -524,49 +524,4 @@
   });
 </script>
 
-<script>
-  // ✅ USAR URLS RELATIVAS EN LUGAR DE ABSOLUTAS
-  const API_BASE_URL = '/api'; // Esto SIEMPRE va al proxy local
-
-  document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      
-      // Cambiar TODAS las llamadas fetch de:
-      // fetch('https://bossbudget-production.up.railway.app/api/auth/login', ...)
-      // a:
-      // fetch(`${API_BASE_URL}/auth/login`, ...)
-      
-      if (loginForm) {
-          loginForm.addEventListener('submit', async function(e) {
-              e.preventDefault();
-              
-              const email = document.getElementById('email').value;
-              const pass = document.getElementById('pass').value;
-              
-              try {
-                  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                      method: 'POST',
-                      credentials: 'include', // ✅ IMPORTANTE: enviar cookies
-                      headers: {
-                          'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({ email, pass })
-                  });
-                  
-                  if (!response.ok) {
-                      throw new Error(`HTTP error! status: ${response.status}`);
-                  }
-                  
-                  const data = await response.json();
-                  console.log('✅ Login exitoso:', data);
-                  
-                  // Redirigir a /principal
-                  window.location.href = '/principal';
-              } catch (error) {
-                  console.error('❌ Error en login:', error);
-              }
-          });
-      }
-  });
-</script>
 </html>

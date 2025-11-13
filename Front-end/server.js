@@ -67,8 +67,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // ✅ CONFIGURAR PROXY CON MEJOR MANEJO DE COOKIES Y ERRORES
+const BACKEND_API_URL = process.env.BACKEND_API_URL || 'https://bossbudgetapi-production.up.railway.app';
 const apiProxy = createProxyMiddleware('/api', {
-  target: 'https://bossbudgetapi-production.up.railway.app',
+  target: BACKEND_API_URL,
   changeOrigin: true,
   secure: true,
   logLevel: 'debug',
@@ -156,7 +157,7 @@ app.use((err, req, res, next) => {
 // ✅ Iniciar servidor
 app.listen(port, () => {
   console.log(`✅ Frontend server running on http://localhost:${port}`);
-  console.log(`📡 Proxying /api to https://bossbudgetapi-production.up.railway.app`);
+  console.log(`📡 Proxying /api to ${BACKEND_API_URL}`);
   console.log(`🔗 Allowed origins:`, allowedOrigins);
   console.log(`🛡️ injectUserData activo globalmente`);
 });
