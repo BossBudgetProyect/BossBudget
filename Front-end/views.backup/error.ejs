@@ -1,0 +1,44 @@
+<!-- views/error.ejs -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - BossBudget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-red-500/60 min-h-screen flex items-center justify-center">
+<style>
+    .modern-input {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border: 4px solid rgb(211, 19, 19);
+}
+</style>
+    <div class="bg-white modern-input p-8 rounded-lg shadow-md max-w-md w-full border">
+        <div class="text-center">
+            <div class="text-6xl mb-4">😕</div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Algo salió mal</h1>
+            <p class="text-gray-600 mb-4"><%= message %></p>
+            
+            <% if (error && error.status) { %>
+                <p class="text-sm text-gray-500 mb-6">Código de error: <%= error.status %></p>
+            <% } %>
+            
+            <a href="/" class="bg-fuchsia-600 text-white px-6 py-2 rounded-lg hover:bg-fuchsia-700 transition-colors">
+                Volver al Inicio
+            </a>
+            
+            <% if (error && process.env.NODE_ENV === 'development') { %>
+                <div class="mt-6 p-4 bg-gray-100 rounded text-left">
+                    <details>
+                        <summary class="cursor-pointer text-sm font-medium">Detalles técnicos</summary>
+                        <pre class="text-xs mt-2 whitespace-pre-wrap"><%= JSON.stringify(error, null, 2) %></pre>
+                    </details>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
