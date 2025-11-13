@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// CORS y configuración de cookies
+// Configuración de CORS y cookies
 const allowedOrigins = [
   process.env.FRONTEND_URL, // debe ser el frontend URL de Railway
   "http://localhost:3000",  // para desarrollo local
@@ -54,12 +54,17 @@ const apiProxy = createProxyMiddleware('/api', {
     const setCookie = proxyRes.headers["set-cookie"];
     if (setCookie && Array.isArray(setCookie)) {
       const rewritten = setCookie.map((c) =>
-        // Si quieres forzar Domain a .up.railway.app usa:
-        // c.replace(/Domain=[^;]+/i, "Domain=.up.railway.app")
-        // Para mayor compatibilidad, simplemente elimina Domain:
-        c.replace(/;\s*Domain=[^;]+/i, "")
+        c.replace(/;\s*Domain=[^;]+/i, "")  // Elimina el atributo Domain de Set-Cookie
       );
       proxyRes.headers["set-cookie"] = rewritten;
+    }
+
+    // Verifica si el contenido es HTML en lugar de JSON
+    const contentType = proxyRes.headers['content-type'];
+    if (contentType && contentType.includes('text/html')) {
+      // Si se recibe HTML, redirige o devuelve un error adecuado
+      console.error("El backend está respondiendo con HTML en lugar de JSON.");
+      res.status(500).json({ error: "El backend ha devuelto HTML. Esto no es esperado." });
     }
   },
   onError(err, req, res) {
@@ -68,7 +73,7 @@ const apiProxy = createProxyMiddleware('/api', {
   }
 });
 
-app.use('/api', apiProxy); // Usamos el proxy para todas las rutas API
+app.use('/api', apiProxy);  // Usamos el proxy para todas las rutas /api
 
 // Aquí configura tus rutas de frontend si las tienes (con EJS, por ejemplo)
 app.get('/', (req, res) => {
@@ -79,3 +84,4 @@ app.listen(3000, () => {
   console.log("Frontend server running on http://localhost:3000");
   console.log("Proxying /api to https://bossbudgetapi-production.up.railway.app");
 });
+
