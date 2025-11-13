@@ -2,7 +2,7 @@
   "name": "bossbudget",
   "version": "1.0.0",
   "description": "Esta guía te llevará paso a paso para configurar el proyecto BossBudget API desde cero.",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
