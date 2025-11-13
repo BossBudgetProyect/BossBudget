@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';  // ✅ AGREGAR ESTO
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -48,28 +49,33 @@ const apiProxy = createProxyMiddleware('/api', {
   target: 'https://bossbudgetapi-production.up.railway.app', // URL del backend
   changeOrigin: true,
   secure: true,  // Si el backend usa HTTPS, esto es necesario
-  cookieDomainRewrite: '',
+  cookieDomainRewrite: '', // ✅ Esto elimina el Domain
   pathRewrite: { '^/api': '/api' },
   onProxyRes(proxyRes, req, res) {
     const setCookie = proxyRes.headers["set-cookie"];
     if (setCookie && Array.isArray(setCookie)) {
-      const rewritten = setCookie.map((c) =>
-        c.replace(/;\s*Domain=[^;]+/i, "")  // Elimina el atributo Domain de Set-Cookie
-      );
+      const rewritten = setCookie.map((c) => {
+        console.log("🔍 Cookie original:", c);
+        
+        // Elimina Domain, ajusta SameSite
+        let newCookie = c
+          .replace(/;\s*Domain=[^;]*/gi, "")
+          .replace(/;\s*SameSite=[^;]*/gi, "; SameSite=Lax");
+        
+        // En desarrollo local, quita Secure; en producción, lo mantiene
+        if (process.env.NODE_ENV !== 'production') {
+          newCookie = newCookie.replace(/;\s*Secure/gi, "");
+        }
+        
+        console.log("✅ Cookie reescrita:", newCookie);
+        return newCookie;
+      });
       proxyRes.headers["set-cookie"] = rewritten;
-    }
-
-    // Verifica si el contenido es HTML en lugar de JSON
-    const contentType = proxyRes.headers['content-type'];
-    if (contentType && contentType.includes('text/html')) {
-      // Si se recibe HTML, redirige o devuelve un error adecuado
-      console.error("El backend está respondiendo con HTML en lugar de JSON.");
-      res.status(500).json({ error: "El backend ha devuelto HTML. Esto no es esperado." });
     }
   },
   onError(err, req, res) {
-    console.error("Proxy error:", err);
-    res.status(502).json({ error: "Proxy error" });
+    console.error("❌ Proxy error:", err.message);
+    res.status(502).json({ error: "Error conectando con el backend" });
   }
 });
 
