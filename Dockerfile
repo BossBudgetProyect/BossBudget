@@ -12,8 +12,8 @@ COPY Front-end/ ./
 
 # Use production mode by default and expose port
 ENV NODE_ENV=production
-ENV PORT=3001
-EXPOSE 3001
+ENV PORT=3000
+EXPOSE 3000
 
 # Run the app
-CMD ["node", "app.js"]
+CMD ["node", "server.js"]
