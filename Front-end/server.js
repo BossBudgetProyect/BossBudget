@@ -24,8 +24,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuración de CORS y cookies
+const FRONTEND_URL = process.env.FRONTEND_URL?.trim() || "http://localhost:3000";
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:3000",
+  FRONTEND_URL,
   "http://localhost:3000",
   "https://bossbudget-production.up.railway.app",
   "https://bossbudget-front.up.railway.app",
@@ -51,8 +52,9 @@ const corsOptions = {
 // ✅ MIDDLEWARES GLOBALES - EN ORDEN CORRECTO
 app.use(cors(corsOptions));
 // ✅ CONFIGURAR PROXY (colocado ANTES de body parsers)
-const BACKEND_API_URL = process.env.BACKEND_API_URL || 'https://bossbudgetapi-production.up.railway.app';
-const apiProxy = createProxyMiddleware('/api', {
+const BACKEND_API_URL = process.env.BACKEND_API_URL?.trim() || 'https://bossbudgetapi-production.up.railway.app';
+console.log('📡 BACKEND_API_URL:', BACKEND_API_URL);
+const apiProxy = createProxyMiddleware({
   target: BACKEND_API_URL,
   changeOrigin: true,
   secure: true,
@@ -115,7 +117,12 @@ const apiProxy = createProxyMiddleware('/api', {
 });
 
 // Aplicar proxy ANTES de los middlewares que parsean el body
-app.use('/api', apiProxy);
+app.use('/api', (req, res, next) => {
+  if (req.url == null) {
+    req.url = req.originalUrl || '';
+  }
+  next();
+}, apiProxy);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
