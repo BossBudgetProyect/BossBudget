@@ -27,6 +27,8 @@ const port = process.env.PORT || 3000;
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
   "http://localhost:3000",
+  "https://bossbudget-production.up.railway.app",
+  "https://bossbudget-front.up.railway.app",
   "https://bossbudgetapi-production.up.railway.app",
 ];
 
