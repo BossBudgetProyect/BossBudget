@@ -61,7 +61,9 @@ const apiProxy = createProxyMiddleware({
   logLevel: 'debug',
   proxyTimeout: 20000,
   timeout: 20000,
-  // No pathRewrite: reenviamos la misma ruta recibida al backend
+  pathRewrite: {
+    '^/api': '',
+  },
   onProxyReq(proxyReq, req, res) {
     try {
       console.log('[PROXY REQ] =>', req.method, req.url);
@@ -118,8 +120,11 @@ const apiProxy = createProxyMiddleware({
 
 // Aplicar proxy ANTES de los middlewares que parsean el body
 app.use('/api', (req, res, next) => {
-  if (req.url == null) {
-    req.url = req.originalUrl || '';
+  if (!req.url) {
+    req.url = req.path || req.originalUrl?.replace(/^\/api/, '') || '';
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[PRE-PROXY] req.url=', req.url, 'req.path=', req.path, 'req.originalUrl=', req.originalUrl);
   }
   next();
 }, apiProxy);
