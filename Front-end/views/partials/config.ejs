@@ -1,0 +1,34 @@
+<!-- views/partials/config.ejs -->
+<script>
+    // ========== CONFIGURACIÓN GLOBAL DE LA APP ==========
+    (function() {
+        // Detectar la URL base automáticamente
+        const getBaseUrl = () => {
+            const origin = window.location.origin;
+            
+            // Codespaces
+            if (origin.includes('app.github.dev') || origin.includes('github.dev')) {
+                return `${origin}/api`;
+            }
+            
+            // Localhost
+            if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+                return 'http://localhost:3000/api';
+            }
+            
+            // Producción (cambia por tu dominio cuando subas)
+            return 'https://bossbudget.com/api';
+        };
+        
+        // Configuración global
+        window.APP_CONFIG = {
+            API_URL: getBaseUrl(),
+            APP_NAME: 'BossBudget'
+        };
+        
+        // Solo mostrar en consola si estás en desarrollo (útil para debug)
+        if (window.location.hostname === 'localhost' || window.location.hostname.includes('github.dev')) {
+            console.log('📡 API_URL:', window.APP_CONFIG.API_URL);
+        }
+    })();
+</script>

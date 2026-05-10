@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <%- include('partials/config.ejs') %>
+
   <!-- Tailwind debe ir primero -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -261,7 +263,7 @@
         console.log('📤 Datos a enviar:', formData);
 
         // Enviar a la API
-        const response = await fetch('https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos', {
+        const response = await fetch(`${window.APP_CONFIG.API_URL}/api/presupuestos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

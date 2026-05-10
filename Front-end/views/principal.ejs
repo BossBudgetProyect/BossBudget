@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <title>Principal - BossBudget</title>
+  <%- include('partials/config.ejs') %>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
@@ -22,7 +23,6 @@
       height: 6px;
       border-radius: 3px;
     }
-    /* Estilos del fondo animado */
     .video-background {
       position: fixed;
       top: 0;
@@ -32,12 +32,10 @@
       object-fit: cover;
       z-index: -1;
     }
-    /* Navbar semitransparente */
     .navbar-transparent {
       background-color: rgba(109, 40, 217, 0.85);
       backdrop-filter: blur(8px);
     }
-    /* Contenedor principal con más redondez */
     .main-container {
       border-radius: 1.5rem;
       margin-top: 6rem;
@@ -45,27 +43,21 @@
       padding-top: 2rem;
       padding-bottom: 2rem;
     }
-    /* Espaciado superior para el contenido */
     .section-spacing {
       margin-top: 2rem;
       margin-bottom: 2rem;
     }
-    /* Espaciado especial para las acciones rápidas */
     .quick-actions-spacing {
       margin-top: 2.5rem;
       margin-bottom: 2.5rem;
     }
-    
-    /* Para el mensaje de no resultados */
     #noResults {
       animation: fadeIn 0.3s ease;
     }
-    
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
     .modal {
       display: none;
       position: fixed;
@@ -78,7 +70,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .modal-content {
       background-color: white;
       padding: 25px;
@@ -88,7 +79,6 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       animation: modalFadeIn 0.3s;
     }
-
     .close-btn {
       float: right;
       font-size: 24px;
@@ -97,79 +87,46 @@
       cursor: pointer;
       transition: color 0.2s;
     }
-
     .close-btn:hover {
       color: #333;
     }
-
     @keyframes modalFadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-  
-    /* Agrega esto a tu sección de estilos */
     .animate-spin {
       animation: spin 1s linear infinite;
     }
-
     @keyframes spin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-
-    /* Estilo para botones deshabilitados */
     button:disabled {
       opacity: 0.7;
       cursor: not-allowed;
     }
-
-    /* Estilos personalizados para SweetAlert2 */
     .swal2-popup {
       border-radius: 12px !important;
       font-family: system-ui, -apple-system, sans-serif;
-    }
-    .swal2-success {
-      border-color: #10b981 !important;
-    }
-    .swal2-error {
-      border-color: #ef4444 !important;
-    }
-    .swal2-warning {
-      border-color: #f59e0b !important;
     }
   </style>
 </head>
 <body class="font-sans">
 
-  <!-- Video de fondo animado -->
   <video autoplay loop muted playsinline class="video-background">
     <source src="/video/videoFondo.mp4" type="video/mp4">
   </video>
   
-  <!-- Navbar incluida correctamente -->
   <%- include('partials/navbar') %>
-  
-  <!-- DEBUG: Mostrar datos recibidos -->
-  <div style="display: none;" id="debugData">
-    <h3>DEBUG - Datos recibidos del servidor:</h3>
-    <pre id="debugPresupuestos"><%= JSON.stringify(presupuestos, null, 2) %></pre>
-    <p>Número de presupuestos: <%= presupuestos.length %></p>
-    <% if (presupuestos.length > 0) { %>
-      <p>Primer presupuesto: <%= JSON.stringify(presupuestos[0]) %></p>
-    <% } %>
-  </div>
 
-  <!-- Contenido Principal -->
   <div class="container mx-auto px-4 main-container bg-white bg-opacity-90 backdrop-blur-sm">
 
-    <!-- Bienvenida -->
     <div class="bg-white p-8 rounded-2xl shadow-md section-spacing">
       <h1 class="text-3xl font-bold text-gray-800 mb-2" style="font-family: 'Bebas Neue', sans-serif;">
         ¡Bienvenid<%= name.endsWith('a') ? 'a' : 'o' %>, <%= name %>!
       </h1>
       <p class="text-gray-600">Aquí puedes gestionar todos tus presupuestos</p>
       
-      <!-- Barra de salud financiera -->
       <div class="mt-6">
         <div class="flex justify-between items-center mb-1">
           <span class="text-sm font-medium text-gray-700">Tu salud financiera</span>
@@ -181,9 +138,7 @@
       </div>
     </div>
 
-    <!-- Dashboard Resumen -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 section-spacing">
-      <!-- Tarjeta Balance Total -->
       <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-blue-500">
         <div class="flex items-center justify-between">
           <h3 class="text-gray-500 font-medium">Balance Total</h3>
@@ -193,7 +148,6 @@
         <p class="text-sm text-green-500 mt-1">+2.5% vs mes anterior</p>
       </div>
       
-      <!-- Tarjeta Próximos Vencimientos -->
       <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-red-500">
         <div class="flex items-center justify-between">
           <h3 class="text-gray-500 font-medium">Próximos Vencimientos</h3>
@@ -203,7 +157,6 @@
         <p class="text-sm text-gray-500 mt-1">Próximo: Crédito Casa - 15/07</p>
       </div>
       
-      <!-- Tarjeta Presupuestos Activos -->
       <div class="bg-white p-6 rounded-2xl shadow-md border-t-4 border-green-500">
         <div class="flex items-center justify-between">
           <h3 class="text-gray-500 font-medium">Presupuestos Activos</h3>
@@ -214,7 +167,6 @@
       </div>
     </div>
 
-    <!-- Sección de Presupuestos -->
     <div class="bg-white p-8 rounded-2xl shadow-md section-spacing">
       <div class="flex flex-col md:flex-row justify-between items-center mb-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0" style="font-family: 'Bebas Neue', sans-serif;">
@@ -223,13 +175,7 @@
         
         <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
           <div class="relative w-full md:w-64">
-            <input 
-              type="text" 
-              id="searchInput"
-              placeholder="Buscar presupuesto..." 
-              class="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500"
-              onkeyup="filterBudgets()"
-            >
+            <input type="text" id="searchInput" placeholder="Buscar presupuesto..." class="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500" onkeyup="filterBudgets()">
             <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
@@ -243,13 +189,10 @@
         </div>
       </div>
 
-      <!-- Grid de presupuestos -->
       <% if (presupuestos.length > 0) { %>
         <div id="budgetsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <% presupuestos.forEach((presupuesto, index) => { 
             const detalle = presupuesto.detalles && presupuesto.detalles[0] ? presupuesto.detalles[0] : {};
-            
-            // Manejo seguro de los datos
             const nombre = detalle.nombre || 'Sin nombre';
             const total = Number(detalle.monto || 0);
             const gastado = Number(presupuesto.totalGastado || presupuesto.gastado || 0);
@@ -257,8 +200,6 @@
             let color = 'bg-green-500';
             if (porcentaje >= 75) color = 'bg-red-500';
             else if (porcentaje >= 50) color = 'bg-yellow-400';
-            
-            // Formatear fechas para mostrar
             const fechaInicio = detalle.fecha_inicio ? new Date(detalle.fecha_inicio).toLocaleDateString() : 'Sin fecha';
             const fechaFin = detalle.fecha_fin ? new Date(detalle.fecha_fin).toLocaleDateString() : 'Sin fecha';
             const idPresupuesto = presupuesto.idPresupuesto;
@@ -269,32 +210,25 @@
                   <h3 class="text-xl font-bold text-gray-800 presupuesto-nombre"><%= nombre %></h3>
                   <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Activo</span>
                 </div>
-                
-                <!-- Barra de progreso -->
                 <div class="mt-4">
                   <div class="flex justify-between text-sm text-gray-600 mb-1">
                     <span>Gastado: $<span class="presupuesto-gastado"><%= gastado.toLocaleString() %></span></span>
                     <span>Total: $<span class="presupuesto-total"><%= total.toLocaleString() %></span></span>
                   </div>
                   <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="<%= color %> h-2.5 rounded-full transition-all duration-300 presupuesto-progreso" style="width: <%= Math.min(porcentaje, 100) %>%"></div>
+                    <div class="<%= color %> h-2.5 rounded-full transition-all duration-300 presupuesto-progreso" style="width: <%= Math.min(porcentaje, 100) + '%' %>"></div>
                   </div>
                   <p class="text-xs text-right text-gray-500 mt-1 presupuesto-porcentaje"><%= porcentaje.toFixed(1) %>% usado</p>
                 </div>
-                
-                <!-- Fechas -->
                 <div class="flex justify-between mt-4 text-sm">
                   <span class="text-gray-500 presupuesto-fecha-inicio" title="Fecha inicio"><%= fechaInicio %></span>
                   <span class="text-gray-500 presupuesto-fecha-fin" title="Fecha fin"><%= fechaFin %></span>
                 </div>
               </div>
-              
-              <!-- Botones acción -->
               <div class="bg-gray-50 px-5 py-3 flex justify-between items-center">
                 <a href="/presupuesto/<%= idPresupuesto %>" class="text-blue-600 hover:text-blue-800 font-medium text-sm">Ver Detalle</a>
                 <div class="flex space-x-2">
-                  <!-- ✅ BOTÓN CORREGIDO - SIN ERRORES DE SINTAXIS -->
-                  <button onclick="openEditBudgetModal('<%= idPresupuesto %>', '<%= nombre.replace(/'/g, "\\'") %>', '<%= total %>', '<%= detalle.fecha_inicio %>', '<%= detalle.fecha_fin %>')" class="text-gray-500 hover:text-yellow-500">
+                  <button onclick='openEditBudgetModal("<%= idPresupuesto %>", "<%= nombre.replace(/\\/g, "\\\\").replace(/'/g, "\\'") %>", "<%= total %>", "<%= detalle.fecha_inicio || '' %>", "<%= detalle.fecha_fin || '' %>")' class="text-gray-500 hover:text-yellow-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
@@ -328,7 +262,6 @@
       <% } %>
     </div>
 
-    <!-- Acciones Rápidas -->
     <div class="quick-actions-spacing grid grid-cols-2 md:grid-cols-4 gap-4">
       <a href="/crearPresupuesto" class="bg-white p-4 rounded-xl shadow-md text-center hover:bg-gray-50 transition">
         <div class="mx-auto h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mb-2">
@@ -365,65 +298,45 @@
     </div>
   </div>
 
-  <!-- Modal de Eliminación -->
   <div id="deleteModal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeDeleteModal()">&times;</span>
       <h2 class="text-xl font-bold text-gray-800 mb-4">Eliminar Presupuesto</h2>
       <p class="text-gray-600 mb-6">¿Estás seguro que deseas eliminar este presupuesto? Esta acción no se puede deshacer.</p>
-      
       <div class="flex justify-end space-x-4">
-        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
-          Cancelar
-        </button>
-        <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
-          Eliminar
-        </button>
+        <button onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
+        <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Eliminar</button>
       </div>
     </div>
   </div>
   
-  <!-- Modal de Edición -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeEditModal()">&times;</span>
       <h2 class="text-xl font-bold text-gray-800 mb-4">Editar Presupuesto</h2>
-      
       <form id="editBudgetForm" class="space-y-4">
         <input type="hidden" id="editBudgetId">
-        
         <div>
           <label for="editBudgetName" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-          <input type="text" id="editBudgetName" required
-                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <input type="text" id="editBudgetName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
         </div>
-        
         <div>
           <label for="editBudgetAmount" class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
-          <input type="number" id="editBudgetAmount" step="0.01" min="0" required
-                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <input type="number" id="editBudgetAmount" step="0.01" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
         </div>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="editBudgetStartDate" class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
-            <input type="date" id="editBudgetStartDate" required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <input type="date" id="editBudgetStartDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
           </div>
           <div>
             <label for="editBudgetEndDate" class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
-            <input type="date" id="editBudgetEndDate" required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <input type="date" id="editBudgetEndDate" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
           </div>
         </div>
-        
         <div class="flex justify-end space-x-4 pt-4">
-          <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
-            Cancelar
-          </button>
-          <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
-            Guardar Cambios
-          </button>
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">Guardar Cambios</button>
         </div>
       </form>
     </div>
@@ -436,11 +349,12 @@
   console.log('Datos completos:', <%- JSON.stringify(presupuestos) %>);
   
   if (<%= presupuestos.length %> > 0) {
-    console.log('Primer presupuesto:', <%- JSON.stringify(presupuestos[0]) %>);
-    console.log('Campos disponibles en el primer presupuesto:', Object.keys(<%- JSON.stringify(presupuestos[0]) %>));
+    console.log('Primer presupuesto:', <%= JSON.stringify(presupuestos[0]) %>);
+    console.log('Campos disponibles:', Object.keys(<%- JSON.stringify(presupuestos[0]) %>));
   }
 
-  // ✅ FUNCIÓN MEJORADA PARA MOSTRAR ALERTAS BONITAS
+  console.log('📡 API_URL configurada:', window.APP_CONFIG.API_URL);
+
   function showAlert(title, message, icon, callback = null) {
     if (typeof Swal === 'undefined') {
       alert(`${title}: ${message}`);
@@ -494,78 +408,39 @@
         iconColor: '#f59e0b'
       });
     } else {
-      Toast.fire({
-        icon: icon,
-        title: message
-      });
+      Toast.fire({ icon, title: message });
     }
   }
 
-  // Variables para almacenar el ID del presupuesto
   let currentBudgetId = null;
 
-  // Funciones para abrir modales
   function openDeleteBudgetModal(idPresupuesto) {
-    console.log('🔍 DEBUG - Abriendo modal de eliminación para ID:', idPresupuesto);
+    console.log('🔍 Abriendo modal eliminación ID:', idPresupuesto);
     currentBudgetId = idPresupuesto;
     document.getElementById('deleteModal').style.display = 'flex';
   }
 
   function openEditBudgetModal(idPresupuesto, nombre, monto, fecha_inicio, fecha_fin) {
-    console.log('🔍 DEBUG - Abriendo modal de edición:', {idPresupuesto, nombre, monto, fecha_inicio, fecha_fin});
-    
+    console.log('🔍 Abriendo modal edición:', {idPresupuesto, nombre, monto, fecha_inicio, fecha_fin});
     currentBudgetId = idPresupuesto;
     
-    // Formatear fecha para input type="date"
     const formatDate = (dateString) => {
       if (!dateString) return '';
-      
-      // Si ya está en formato YYYY-MM-DD, devolverlo directamente
-      if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return dateString;
-      }
-      
-      // Si viene en formato MM/DD/YYYY o DD/MM/YYYY
+      if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString;
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        // Intentar parsear diferentes formatos
-        const parts = dateString.split(/[/-]/);
-        if (parts.length === 3) {
-          // Asumir formato MM/DD/YYYY o DD/MM/YYYY
-          if (parts[0].length === 4) {
-            // Formato YYYY/MM/DD
-            return dateString;
-          } else if (parts[2].length === 4) {
-            // Formato MM/DD/YYYY o DD/MM/YYYY
-            const formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-            return formattedDate;
-          }
-        }
-        return '';
-      }
+      if (isNaN(date.getTime())) return '';
       return date.toISOString().split('T')[0];
     };
 
-    // Rellenar el formulario
     document.getElementById('editBudgetId').value = idPresupuesto;
     document.getElementById('editBudgetName').value = nombre || '';
     document.getElementById('editBudgetAmount').value = monto || '';
     document.getElementById('editBudgetStartDate').value = formatDate(fecha_inicio);
     document.getElementById('editBudgetEndDate').value = formatDate(fecha_fin);
     
-    console.log('🔍 DEBUG - Fechas formateadas:', {
-      original: { fecha_inicio, fecha_fin },
-      formateado: {
-        inicio: formatDate(fecha_inicio),
-        fin: formatDate(fecha_fin)
-      }
-    });
-    
-    // Mostrar el modal
     document.getElementById('editModal').style.display = 'flex';
   }
 
-  // Funciones para cerrar modales
   function closeDeleteModal() {
     document.getElementById('deleteModal').style.display = 'none';
     currentBudgetId = null;
@@ -576,7 +451,6 @@
     currentBudgetId = null;
   }
 
-  // Manejar clic fuera del modal
   window.onclick = function(event) {
     if (event.target.className === 'modal') {
       closeDeleteModal();
@@ -584,26 +458,21 @@
     }
   }
 
-  // ✅ FUNCIÓN PARA ACTUALIZAR INTERFAZ EN TIEMPO REAL
   function updateBudgetInUI(budgetId, updatedData) {
     const budgetCard = document.querySelector(`[data-id="${budgetId}"]`);
     if (!budgetCard) return;
 
-    // Actualizar nombre
     const nombreElement = budgetCard.querySelector('.presupuesto-nombre');
     if (nombreElement && updatedData.nombre) {
       nombreElement.textContent = updatedData.nombre;
       budgetCard.setAttribute('data-nombre', updatedData.nombre.toLowerCase());
     }
 
-    // Actualizar monto total
     const totalElement = budgetCard.querySelector('.presupuesto-total');
     if (totalElement && updatedData.monto) {
-      const total = parseFloat(updatedData.monto).toLocaleString();
-      totalElement.textContent = total;
+      totalElement.textContent = parseFloat(updatedData.monto).toLocaleString();
     }
 
-    // Actualizar fechas
     const fechaInicioElement = budgetCard.querySelector('.presupuesto-fecha-inicio');
     const fechaFinElement = budgetCard.querySelector('.presupuesto-fecha-fin');
     
@@ -613,55 +482,40 @@
     if (fechaFinElement && updatedData.fecha_fin) {
       fechaFinElement.textContent = new Date(updatedData.fecha_fin).toLocaleDateString();
     }
-
-    console.log('🔍 DEBUG - Interfaz actualizada en tiempo real');
   }
 
-  // ✅ FUNCIÓN PARA ELIMINAR PRESUPUESTO DE LA INTERFAZ
   function removeBudgetFromUI(budgetId) {
     const budgetCard = document.querySelector(`[data-id="${budgetId}"]`);
     if (budgetCard) {
       budgetCard.remove();
-      
-      // Actualizar contador
       const remainingBudgets = document.querySelectorAll('.presupuesto-card').length;
       document.getElementById('contadorPresupuestos').textContent = remainingBudgets;
-      
-      console.log('🔍 DEBUG - Presupuesto eliminado de la interfaz');
     }
   }
 
-  // ✅ MANEJAR ENVÍO DEL FORMULARIO - VERSIÓN MEJORADA CON ACTUALIZACIÓN EN TIEMPO REAL
+  // ✅ EDITAR - USANDO window.APP_CONFIG.API_URL
   document.getElementById('editBudgetForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="animate-spin">⏳</i> Procesando...';
+    submitBtn.innerHTML = '⏳ Procesando...';
     submitBtn.disabled = true;
     
-    // ✅ ENVIAR TODOS LOS CAMPOS POSIBLES
     const formData = {
       nombre: document.getElementById('editBudgetName').value.trim(),
       monto: parseFloat(document.getElementById('editBudgetAmount').value) || 0,
-      valor: parseFloat(document.getElementById('editBudgetAmount').value) || 0, // Enviar ambos por seguridad
       fecha_inicio: document.getElementById('editBudgetStartDate').value,
-      fecha_fin: document.getElementById('editBudgetEndDate').value,
-      categoria: 'Casa', // Valor por defecto
-      otraCategoria: '' // Campo adicional
+      fecha_fin: document.getElementById('editBudgetEndDate').value
     };
 
-    console.log('🔍 DEBUG - Enviando datos COMPLETOS:', formData);
-
-    // Validación mejorada
     if (!formData.nombre || formData.monto <= 0 || !formData.fecha_inicio || !formData.fecha_fin) {
-      showAlert('Campos incompletos', 'Por favor completa todos los campos con valores válidos', 'warning');
+      showAlert('Campos incompletos', 'Por favor completa todos los campos', 'warning');
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;
       return;
     }
 
-    // Validar fechas
     if (new Date(formData.fecha_fin) < new Date(formData.fecha_inicio)) {
       showAlert('Fechas inválidas', 'La fecha fin no puede ser anterior a la fecha inicio', 'warning');
       submitBtn.innerHTML = originalText;
@@ -669,71 +523,33 @@
       return;
     }
 
-    // Mostrar loading
-    Swal.fire({
-      title: 'Actualizando presupuesto...',
-      text: 'Guardando los cambios',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+    Swal.fire({ title: 'Actualizando...', text: 'Guardando cambios', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
-    const apiUrl = `https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos/${currentBudgetId}`;
-    console.log('🔍 DEBUG - URL de la API:', apiUrl);
-    
-    fetch(apiUrl, {
+    // ✅ USANDO window.APP_CONFIG.API_URL
+    fetch(`${window.APP_CONFIG.API_URL}/presupuestos/${currentBudgetId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(formData)
     })
     .then(async (response) => {
-      const responseText = await response.text();
-      console.log('🔍 DEBUG - Respuesta del servidor (texto):', responseText);
-      
-      try {
-        const data = JSON.parse(responseText);
-        return {
-          status: response.status,
-          ok: response.ok,
-          data: data
-        };
-      } catch (e) {
-        return {
-          status: response.status,
-          ok: response.ok,
-          data: { error: responseText }
-        };
-      }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.message || `Error ${response.status}`);
+      return data;
     })
-    .then(({ status, ok, data }) => {
-      console.log('🔍 DEBUG - Respuesta procesada:', { status, ok, data });
+    .then(data => {
       Swal.close();
-
-      if (ok && data.success) {
-        // ✅ CERRAR MODAL AUTOMÁTICAMENTE
+      if (data.success) {
         closeEditModal();
-        
-        // ✅ ACTUALIZAR INTERFAZ EN TIEMPO REAL
         updateBudgetInUI(currentBudgetId, formData);
-        
-        showAlert(
-          '¡Presupuesto Actualizado!', 
-          '🎊 Los cambios se han guardado correctamente', 
-          'success'
-        );
+        showAlert('¡Actualizado!', 'Los cambios se guardaron correctamente', 'success');
       } else {
-        throw new Error(data.error || data.message || `Error ${status}`);
+        throw new Error(data.message || 'Error al actualizar');
       }
     })
     .catch(error => {
-      console.error('🔍 DEBUG - Error completo:', error);
       Swal.close();
-      
-      showAlert('Error al actualizar', error.message, 'error');
+      showAlert('Error', error.message, 'error');
     })
     .finally(() => {
       submitBtn.innerHTML = originalText;
@@ -741,17 +557,10 @@
     });
   });
 
-  // ✅ MANEJAR ELIMINACIÓN CORREGIDA CON ACTUALIZACIÓN EN TIEMPO REAL
+  // ✅ ELIMINAR - USANDO window.APP_CONFIG.API_URL
   document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-    if (!currentBudgetId) {
-      console.error('🔍 DEBUG - No hay currentBudgetId para eliminar');
-      return;
-    }
+    if (!currentBudgetId) return;
     
-    const deleteBtn = this;
-    const originalText = deleteBtn.innerHTML;
-
-    // Mostrar confirmación con SweetAlert
     Swal.fire({
       title: '¿Estás seguro?',
       text: "¡Esta acción no se puede deshacer!",
@@ -760,75 +569,43 @@
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      reverseButtons: true
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteBtn.innerHTML = '<i class="animate-spin">⏳</i> Eliminando...';
-        deleteBtn.disabled = true;
-
-        // Mostrar loading durante la eliminación
-        Swal.fire({
-          title: 'Eliminando presupuesto...',
-          text: 'Por favor espera',
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-
-        const apiUrl = `https://stunning-train-69wj9qqxwvxj3r4vr-3000.app.github.dev/api/presupuestos/${currentBudgetId}`;
-        console.log('🔍 DEBUG - URL de eliminación:', apiUrl);
-
-        fetch(apiUrl, {
+        Swal.fire({ title: 'Eliminando...', text: 'Por favor espera', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        // ✅ USANDO window.APP_CONFIG.API_URL
+        fetch(`${window.APP_CONFIG.API_URL}/presupuestos/${currentBudgetId}`, {
           method: 'DELETE',
           credentials: 'include'
         })
-        .then(response => {
-          console.log('🔍 DEBUG - Respuesta de eliminación (status):', response.status);
-          if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor: ' + response.status);
-          }
-          return response.json();
+        .then(async (response) => {
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || `Error ${response.status}`);
+          return data;
         })
         .then(data => {
-          console.log('🔍 DEBUG - Respuesta de eliminación (data):', data);
           Swal.close();
           if (data.success) {
-            // ✅ CERRAR MODAL AUTOMÁTICAMENTE
             closeDeleteModal();
-            
-            // ✅ ELIMINAR DE LA INTERFAZ EN TIEMPO REAL
             removeBudgetFromUI(currentBudgetId);
-            
-            showAlert(
-              '¡Presupuesto Eliminado!', 
-              '🗑️ El presupuesto ha sido eliminado correctamente', 
-              'success'
-            );
+            showAlert('¡Eliminado!', 'El presupuesto fue eliminado correctamente', 'success');
           } else {
-            throw new Error(data.error || data.message || 'Error al eliminar el presupuesto');
+            throw new Error(data.message || 'Error al eliminar');
           }
         })
         .catch(error => {
-          console.error('🔍 DEBUG - Error en eliminación:', error);
           Swal.close();
-          showAlert('Error al eliminar', error.message, 'error');
-        })
-        .finally(() => {
-          deleteBtn.innerHTML = originalText;
-          deleteBtn.disabled = false;
+          showAlert('Error', error.message, 'error');
         });
       }
     });
   });
 
-  // Función para filtrar presupuestos
   function filterBudgets() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
     const budgetCards = document.querySelectorAll('.presupuesto-card');
-    
     let visibleCount = 0;
     
     budgetCards.forEach(card => {
@@ -841,7 +618,6 @@
       }
     });
 
-    // Mostrar mensaje si no hay resultados
     const noResults = document.getElementById('noResults');
     const grid = document.getElementById('budgetsContainer');
     
@@ -862,37 +638,31 @@
     } else if (noResults) {
       noResults.remove();
     }
-    
-    console.log('🔍 DEBUG - Filtro aplicado. Resultados visibles:', visibleCount);
   }
 
-  // Script para salud financiera
   const actualizarSaludFinanciera = (puntaje) => {
     const barra = document.getElementById('saludBar');
     const label = document.getElementById('saludLabel');
-    
     barra.style.width = `${puntaje}%`;
-    
     if (puntaje < 25) {
-      barra.className = 'bg-red-500 h-2.5 rounded-full progress-bar';
+      barra.className = 'bg-red-500 h-2.5 rounded-full';
       label.textContent = 'Crítica';
       label.className = 'text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-800';
     } else if (puntaje < 50) {
-      barra.className = 'bg-orange-400 h-2.5 rounded-full progress-bar';
+      barra.className = 'bg-orange-400 h-2.5 rounded-full';
       label.textContent = 'Regular';
       label.className = 'text-xs font-semibold px-2 py-1 rounded-full bg-orange-100 text-orange-800';
     } else if (puntaje < 75) {
-      barra.className = 'bg-yellow-400 h-2.5 rounded-full progress-bar';
+      barra.className = 'bg-yellow-400 h-2.5 rounded-full';
       label.textContent = 'Buena';
       label.className = 'text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800';
     } else {
-      barra.className = 'bg-green-500 h-2.5 rounded-full progress-bar';
+      barra.className = 'bg-green-500 h-2.5 rounded-full';
       label.textContent = 'Excelente';
       label.className = 'text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-800';
     }
   };
 
-  // Ejemplo con valor simulado
   actualizarSaludFinanciera(65);
 </script>
 
